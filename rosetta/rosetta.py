@@ -90,13 +90,13 @@ class SoilDatum(NamedTuple):
 
     def best_index(self) -> int:
         """Max value of index for which self.is_valid(index) is True."""
-        count = 0
+        best = 0
         for index in range(3, len(self) + 1):
             if self.is_valid(index):
-                count = index
+                best = index
             else:
                 break
-        return count
+        return best
 
 
 class SoilData(List[SoilDatum]):
