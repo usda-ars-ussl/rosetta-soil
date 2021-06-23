@@ -22,7 +22,7 @@ setup(
     version=version["__version__"],
     description=SHORT,
     long_description=LONG,
-    url="https://github.com/usda-ars-ussl/rosetta",
+    url="https://github.com/usda-ars-ussl/rosetta-soil",
     packages=["rosetta"],
     package_data={"rosetta": ["sqlite/Rosetta.sqlite"]},
     python_requires=">=3.7",
