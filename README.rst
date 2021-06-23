@@ -111,7 +111,7 @@ characterization data. The models differ in the required input data
 
 where
 
-* sa, si, cl are percentages of sand, silt and clay                     |
+* sa, si, cl are percentages of sand, silt and clay
 * BD is soil bulk density (g/cm3)
 * th33 is the soil volumetric water content at 33 kPa
 * th1500 is the soil volumetric water content at 1500 kPa
