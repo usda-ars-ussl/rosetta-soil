@@ -5,7 +5,7 @@ from basic soil characterization data.
 How to avoid installing this package
 ====================================
 
-For most Rosetta use cases, I recommend using the web browser interface
+For most Rosetta use cases, we recommend using the web browser interface
 to ``rosetta-soil`` that is available at
 `<https://www.handbook60.org/rosetta>`_
 
@@ -45,9 +45,8 @@ returns the following::
 See below for information on the expected structure and content of the
 submitted ``soildata`` and returned json payload.
 
-[Please don't overload the api. If your use case involves, e.g.,
-thousands of repeated requests, then install and use ``rosetta-soil``
-locally.]
+[If your use case involves, e.g., thousands of repeated requests, then
+please install and use ``rosetta-soil`` locally rather than use the api.]
  
 Installation
 ============
@@ -96,12 +95,12 @@ Genuchten model of unsaturated soil hydraulic properties
 * log10(ksat)  : saturated hydraulic conductivity [log10(cm/d)]
 
 Rosetta provides four models for predicting the five parameters from soil
-characteriztion data. The models differ in the required input data
+characterization data. The models differ in the required input data
 
 +------------+------------------------+
 | Model Code | Input Data             |
 +============+========================+
-|      2     | sand, silt, clay (SSC) |
+|      2     | sa, si, cl (SSC) |
 +------------+------------------------+
 |      3     | SSC, bulk density (BD) |
 +------------+------------------------+
@@ -112,7 +111,7 @@ characteriztion data. The models differ in the required input data
 
 where
 
-* sand, silt, clay are percentags of sand, silt and clay                     |
+* sa, si, cl are percentages of sand, silt and clay                     |
 * BD is soil bulk density (g/cm3)
 * th33 is the soil volumetric water content at 33 kPa
 * th1500 is the soil volumetric water content at 1500 kPa
