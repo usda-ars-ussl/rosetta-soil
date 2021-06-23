@@ -23,6 +23,7 @@ There is also an api available at ``handbook60.org``.  For example::
 
     def url(rosetta_version: int) -> str:
         return f"http://www.handbook60.org/api/v1/rosetta/{rosetta_version}"
+
     r = requests.post(url(3), json=data)
 
 returns the following::
@@ -219,7 +220,7 @@ and ``stdev``.
 Alternative usage
 -----------------
 
-Predictions can also be made using the Rostta class
+Predictions can also be made using the Rosetta class
 ::
 
     import numpy as np
