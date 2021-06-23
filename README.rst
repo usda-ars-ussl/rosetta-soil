@@ -100,7 +100,7 @@ characterization data. The models differ in the required input data
 +------------+------------------------+
 | Model Code | Input Data             |
 +============+========================+
-|      2     | sa, si, cl (SSC) |
+|      2     | sa, si, cl (SSC)       |
 +------------+------------------------+
 |      3     | SSC, bulk density (BD) |
 +------------+------------------------+
