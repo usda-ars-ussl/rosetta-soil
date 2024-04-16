@@ -190,9 +190,7 @@ class ANN(object):
         self.w = []
         self.b = []
 
-        self.transfer_funcs, self.transfer_names = self.parse_transfer_funcs(
-            nlayer, transfers
-        )
+        self.transfer_funcs, self.transfer_names = self.parse_transfer_funcs(nlayer, transfers)
 
         return
 
@@ -295,7 +293,9 @@ class ANN(object):
         if with_transfer:
             return " replica_hash, ann_hash, seq, model_id, nin, nlayer, nhid1, nhid1_transfer, nhid2, nhid2_transfer, nout, nout_transfer, ann_bin "
         else:
-            return " replica_hash, ann_hash, seq, model_id, nin, nlayer, nhid1, nhid2, nout, ann_bin "
+            return (
+                " replica_hash, ann_hash, seq, model_id, nin, nlayer, nhid1, nhid2, nout, ann_bin "
+            )
 
     def predict(self, x):
         tmp = N.copy(x)
@@ -325,9 +325,7 @@ class ANN(object):
         return y
 
     def logsig(self, x):
-        y = 1.0 / (
-            1.0 + N.exp(-1.0 * x)
-        )  # <- forgot the minus sign, so old rosetta didn't work...
+        y = 1.0 / (1.0 + N.exp(-1.0 * x))  # <- forgot the minus sign, so old rosetta didn't work...
         return y
 
     def purelin(self, x):
@@ -672,12 +670,8 @@ class PS(object):
         gain = N.zeros((self.nvar,), dtype=float)
         offset = N.zeros((self.nvar,), dtype=float)
 
-        sco = N.zeros(
-            (self.nvar,), dtype=float
-        )  # offset traditional unscaling of Rostta output
-        scs = N.zeros(
-            (self.nvar,), dtype=float
-        )  # slope traditional unscaling of Rostta output
+        sco = N.zeros((self.nvar,), dtype=float)  # offset traditional unscaling of Rostta output
+        scs = N.zeros((self.nvar,), dtype=float)  # slope traditional unscaling of Rostta output
         sct = N.zeros((self.nvar,), dtype=int)  # 0: no transform, 1: log10 transform
 
         d_min = N.zeros((self.nvar,), dtype=float)
@@ -1023,9 +1017,7 @@ class PTF_MODEL(object):
         )  # need to be intelligent how data offered, transpose if needed? How to deal with square matrices?
         # SELECT CODE HERE
 
-        for i in range(
-            self.nmodel
-        ):  # nmodel refers to the possibility of HYBRID models
+        for i in range(self.nmodel):  # nmodel refers to the possibility of HYBRID models
             # TODO: for oldrosetta unsat_k model we need to put output in data
             # print("model_no %s, model_id %s" %(self.model_no,self.ann_models[i].model_id))
             # res (3D), varnames (1D), bool of valid data (1D?)
@@ -1048,9 +1040,7 @@ class PTF_MODEL(object):
             sum_res_cov = N.zeros((nout_total, nout_total, nsamp), dtype=float)
             sum_res_bool = N.zeros((nout_total, nsamp), dtype=bool)
             offset = 0
-            for i in range(
-                self.nmodel
-            ):  # nmodel refers to the possibility of HYBRID models
+            for i in range(self.nmodel):  # nmodel refers to the possibility of HYBRID models
                 var_names += varout[i]  # could indicate log units
                 nvar = len(varout[i])
                 mean, std, cov, skew, kurt = self.sum_stat(res[i], nvar, nsamp)
@@ -1086,9 +1076,7 @@ class PTF_MODEL(object):
                 )
             )
         else:
-            res_dict = dict(
-                zip(["varout", "res", "data_bool"], [varout, res, data_bool])
-            )
+            res_dict = dict(zip(["varout", "res", "data_bool"], [varout, res, data_bool]))
         res_dict["nsamp"] = nsamp
         res_dict["nout"] = nout_total
         res_dict["nin"] = nin

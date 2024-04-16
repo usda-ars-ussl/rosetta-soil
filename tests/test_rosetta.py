@@ -86,17 +86,26 @@ def test_rosetta() -> None:
     import itertools
     from typing import List
 
-    from data import (FEATURES, ROSE1_MOD2, ROSE1_MOD3, ROSE1_MOD4, ROSE1_MOD5,
-                      ROSE2_MOD2, ROSE2_MOD3, ROSE2_MOD4, ROSE2_MOD5,
-                      ROSE3_MOD2, ROSE3_MOD3, ROSE3_MOD4, ROSE3_MOD5)
+    from data import (
+        FEATURES,
+        ROSE1_MOD2,
+        ROSE1_MOD3,
+        ROSE1_MOD4,
+        ROSE1_MOD5,
+        ROSE2_MOD2,
+        ROSE2_MOD3,
+        ROSE2_MOD4,
+        ROSE2_MOD5,
+        ROSE3_MOD2,
+        ROSE3_MOD3,
+        ROSE3_MOD4,
+        ROSE3_MOD5,
+    )
 
     from rosetta import SoilData, rosetta
 
     def parse(raw: str) -> List[List[float]]:
-        return [
-            [float(s) for s in row]
-            for row in [r.split() for r in raw.strip().split("\n")]
-        ]
+        return [[float(s) for s in row] for row in [r.split() for r in raw.strip().split("\n")]]
 
     FEATURES = parse(FEATURES)
 
@@ -121,13 +130,9 @@ def test_rosetta() -> None:
 
     for ver, mod in itertools.product((1, 2, 3), (2, 3, 4, 5)):
         jcol = mod + 1
-        arr, stdev, codes = rosetta(
-            ver, SoilData.from_array([f[:jcol] for f in FEATURES])
-        )
+        arr, stdev, codes = rosetta(ver, SoilData.from_array([f[:jcol] for f in FEATURES]))
         npt.assert_equal(codes, np.array(len(FEATURES) * [mod], dtype=int))
-        npt.assert_array_almost_equal(
-            arr, DESIRED[f"r{ver}m{mod}"], decimal=5 if ver == 2 else 10
-        )
+        npt.assert_array_almost_equal(arr, DESIRED[f"r{ver}m{mod}"], decimal=5 if ver == 2 else 10)
 
     features = FEATURES[:]
     features[0][0] = np.nan
