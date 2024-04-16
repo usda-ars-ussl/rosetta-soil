@@ -180,7 +180,7 @@ def test_error() -> None:
 
 
 if __name__ == "__main__":
+    test_soildatum()
     test_soildata()
-    test_soilfeatures()
     test_rosetta()
     test_error()
