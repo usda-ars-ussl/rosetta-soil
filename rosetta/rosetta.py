@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-import importlib
+from importlib import resources
 from typing import List, NamedTuple, Optional, Sequence, Tuple, Union
+from . import sqlite
 
 import numpy as np
 
@@ -119,10 +120,9 @@ class Rosetta:
         self.rosetta_version = rosetta_version
         self.model_code = model_code
         code = model_code if rosetta_version == 3 else model_code + 100
-
-        with importlib.resources.path("rosetta", "sqlite/Rosetta.sqlite") as rosetta_db_path:
-            with DB_Module.DB(0, 0, 0, sqlite_path=rosetta_db_path) as db:
-                self.ptf_model = ANN_Module.PTF_MODEL(code, db)
+        rosetta_db_path = resources.files(sqlite) / "Rosetta.sqlite"
+        with DB_Module.DB(0, 0, 0, sqlite_path=rosetta_db_path) as db:
+            self.ptf_model = ANN_Module.PTF_MODEL(code, db)
 
     def predict(self, X: Array2D) -> Tuple[Array2D, Array2D]:
         predicted_params = self.ptf_model.predict(X.T, sum_data=True)
