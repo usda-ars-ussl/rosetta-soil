@@ -160,7 +160,7 @@ def rosetta(
     (mean, stdev, codes)
 
     mean : 2D np.array, dtype=float
-        
+
         ith row holds predicted soil hydraulic parameters for ith entry
         in `soildata`.
 
@@ -200,7 +200,7 @@ def rosetta(
     # sa, si, and cl are required; others optional
 
     >>> data = [
-            [30,30,40,1.5,0.3,0.1],  
+            [30,30,40,1.5,0.3,0.1],
             [20,60,20],
             [55,25,20,1.1]
         ]
