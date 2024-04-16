@@ -171,11 +171,11 @@ def test_error() -> None:
 
     from rosetta import RosettaError, SoilData, rosetta
 
-    with pytest.raises(RosettaError) as e:
+    with pytest.raises(RosettaError):
         _ = rosetta(-99, SoilData.from_array([[1, 2, 3]]))
-    with pytest.raises(RosettaError) as e:
+    with pytest.raises(RosettaError):
         _ = rosetta(4, SoilData.from_array([[1, 2, 3]]))
-    with pytest.raises(RosettaError) as e:
+    with pytest.raises(RosettaError):
         _ = rosetta(1, [[1, 2, 3]])
 
 
