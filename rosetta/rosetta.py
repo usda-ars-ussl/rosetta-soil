@@ -1,12 +1,11 @@
 from __future__ import annotations
 
 from importlib.resources import files
-from typing import NamedTuple, Sequence, Tuple, Union, Optional, List
+from typing import List, NamedTuple, Optional, Sequence, Tuple, Union
 
 import numpy as np
 
-from . import ANN_Module
-from . import DB_Module
+from . import ANN_Module, DB_Module
 
 Array1D = Union[np.ndarray]
 Array2D = Union[np.ndarray]

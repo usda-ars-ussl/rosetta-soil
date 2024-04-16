@@ -86,23 +86,11 @@ def test_rosetta() -> None:
     import itertools
     from typing import List
 
-    from rosetta import rosetta, SoilData
+    from data import (FEATURES, ROSE1_MOD2, ROSE1_MOD3, ROSE1_MOD4, ROSE1_MOD5,
+                      ROSE2_MOD2, ROSE2_MOD3, ROSE2_MOD4, ROSE2_MOD5,
+                      ROSE3_MOD2, ROSE3_MOD3, ROSE3_MOD4, ROSE3_MOD5)
 
-    from data import (
-        FEATURES,
-        ROSE1_MOD2,
-        ROSE1_MOD3,
-        ROSE1_MOD4,
-        ROSE1_MOD5,
-        ROSE2_MOD2,
-        ROSE2_MOD3,
-        ROSE2_MOD4,
-        ROSE2_MOD5,
-        ROSE3_MOD2,
-        ROSE3_MOD3,
-        ROSE3_MOD4,
-        ROSE3_MOD5,
-    )
+    from rosetta import SoilData, rosetta
 
     def parse(raw: str) -> List[List[float]]:
         return [
@@ -175,7 +163,8 @@ def test_rosetta() -> None:
 
 def test_error() -> None:
     import pytest
-    from rosetta import rosetta, RosettaError, SoilData
+
+    from rosetta import RosettaError, SoilData, rosetta
 
     with pytest.raises(RosettaError) as e:
         _ = rosetta(-99, SoilData.from_array([[1, 2, 3]]))
