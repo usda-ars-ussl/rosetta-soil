@@ -73,13 +73,13 @@ def test_soildata() -> None:
     assert sf3.is_valid(5) == [True, False, True]
 
     npt.assert_array_equal(sf.to_array(), np.array([dat2[0] + 3 * [np.nan]]))
-    #npt.assert_array_equal(
+    # npt.assert_array_equal(
     #    sf2.to_array(4), np.array([dat2[0] + [np.nan], dat2[1] + [np.nan]])
-    #)
+    # )
     npt.assert_array_equal(sf3.to_array(), np.array(dat3))
-    #npt.assert_array_equal(
+    # npt.assert_array_equal(
     #    sf3.to_array(4), np.array([[30, 40, 30, 1], [30, 40, 30, 1], [30, 40, 30, 1]])
-    #)
+    # )
 
 
 def test_rosetta() -> None:
@@ -133,7 +133,9 @@ def test_rosetta() -> None:
 
     for ver, mod in itertools.product((1, 2, 3), (2, 3, 4, 5)):
         jcol = mod + 1
-        arr, stdev, codes = rosetta(ver, SoilData.from_array([f[:jcol] for f in FEATURES]))
+        arr, stdev, codes = rosetta(
+            ver, SoilData.from_array([f[:jcol] for f in FEATURES])
+        )
         npt.assert_equal(codes, np.array(len(FEATURES) * [mod], dtype=int))
         npt.assert_array_almost_equal(
             arr, DESIRED[f"r{ver}m{mod}"], decimal=5 if ver == 2 else 10
