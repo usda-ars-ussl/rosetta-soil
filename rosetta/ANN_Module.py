@@ -290,7 +290,7 @@ class ANN(object):
     @staticmethod
     def db_string(with_transfer=False):
         if with_transfer:
-            return " replica_hash, ann_hash, seq, model_id, nin, nlayer, nhid1, nhid1_transfer, nhid2, nhid2_transfer, nout, nout_transfer, ann_bin "
+            return " replica_hash, ann_hash, seq, model_id, nin, nlayer, nhid1, nhid1_transfer, nhid2, nhid2_transfer, nout, nout_transfer, ann_bin "  # noqa E501
         else:
             return (
                 " replica_hash, ann_hash, seq, model_id, nin, nlayer, nhid1, nhid2, nout, ann_bin "
@@ -392,13 +392,16 @@ class REPLICA(object):
     def split_boot(self, line, oldrosetta=False):
         if oldrosetta:
             pat = N.array([int(i) for i in line.split()], dtype=N.int8)
-            # OK we made an error in the MATLAB code.  I intended to use SHA-1 there, but it defaulted to MD5
+            # OK we made an error in the MATLAB code. I intended to use SHA-1 there
+            # but it defaulted to MD5.
             # SHA-1 returns 32 hex char, and sha-1 returns 40
-            # since we are 'stuck' with 32 (new rosetta) for the replicas, we should also use md5 for old rosetta
+            #
+            # since we are 'stuck' with 32 (new rosetta) for the replicas, we should also
+            # use md5 for old rosetta
+            #
             # the replica-hash appears in the binary blob, and it is troublesome to change it now.
             # the hashes are supposed to be identifiers only.
             hash_id = hashlib.md5(pat.tostring()).hexdigest()
-            # print(len(hash_id))
         else:
             tmp = line.split()
             hash_id = tmp[0]
@@ -587,7 +590,7 @@ class ANN_res(object):
 
     @staticmethod
     def db_string():
-        return " replica_hash, seq, model_id, nhid, nc, nv, vgc_rmse, vgc_me, vgv_rmse, vgv_me, ksc_rmse, ksc_me, ksv_rmse, ksv_me, nfail "
+        return " replica_hash, seq, model_id, nhid, nc, nv, vgc_rmse, vgc_me, vgv_rmse, vgv_me, ksc_rmse, ksc_me, ksv_rmse, ksv_me, nfail "  # noqa E501
 
     @staticmethod
     def from_stream(s):
@@ -648,9 +651,13 @@ class PS(object):
     def from_DB(cursor, model_id, model_var_table):
         assert cursor, "bad cursor"
         PSdata = PS()
-        sql_query = (
-            "SELECT var_name, V.var_id, xmin, xmax, ymin, ymax, gain, offset, sco, scs, sct, data_min, data_max FROM `minmax` as M JOIN `%s` as V ON (M.var_id=V.var_id) WHERE V.model_id= %s  ORDER by `var_pos` ;"
-            % (model_var_table, model_id)
+        sql_query = """SELECT var_name, V.var_id, xmin, xmax, ymin, ymax, gain, offset,
+                      sco, scs, sct, data_min, data_max
+               FROM `minmax` as M JOIN `%s` as V ON (M.var_id=V.var_id)
+               WHERE V.model_id= %s
+               ORDER by `var_pos` ;""" % (
+            model_var_table,
+            model_id,
         )  # we convert to tuple so we get the proper formatting for MySQL
         cursor.execute(sql_query)
         PSdata.parse_query(cursor)  # has side effects
@@ -756,7 +763,9 @@ class PS(object):
 
     def DB_store(self, cursor):
         assert cursor, "bad cursor"
-        sql_insert = "INSERT INTO `minmax` ( var_name, var_pos, xmin, xmax, ymin, ymax, gain, offset ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s )"
+        sql_insert = """INSERT INTO `minmax`
+                           (var_name, var_pos, xmin, xmax, ymin, ymax, gain, offset)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s )"""
         vals = [
             (
                 self.var_names[i],
@@ -779,7 +788,11 @@ class PS(object):
 
 class ANN_MODEL(object):
 
-    ann_query_clause = "SELECT A.replica_hash, A.seq, A.model_id, A.nin, A.nlayer, A.nhid1, A.nhid1_transfer, A.nhid2, A.nhid2_transfer, A.nout,A.nout_transfer, A.ann_bin FROM `Ann` as A JOIN Ann_res AS R ON (A.replica_hash=R.replica_hash) WHERE A.model_id= %s and R.model_id=A.model_id and R.nfail=0"
+    ann_query_clause = """SELECT A.replica_hash, A.seq, A.model_id, A.nin, A.nlayer, A.nhid1,
+                                 A.nhid1_transfer, A.nhid2, A.nhid2_transfer,
+                                 A.nout,A.nout_transfer, A.ann_bin
+                          FROM `Ann` as A JOIN Ann_res AS R ON (A.replica_hash=R.replica_hash)
+                          WHERE A.model_id= %s AND R.model_id=A.model_id and R.nfail=0"""
 
     @property
     def ann_sequence(self):
@@ -953,9 +966,11 @@ class PTF_MODEL(object):
 
     def __init__(self, model_no, db):
 
-        sql_string = (
-            "SELECT `model_no`,`model_name`,`model_id`,`model_seq` FROM `Models_names` WHERE `model_no`= %s ORDER BY `model_seq` ;"
-            % (model_no)
+        sql_string = """SELECT `model_no`,`model_name`,`model_id`,`model_seq`
+               FROM `Models_names`
+               WHERE `model_no`= %s
+               ORDER BY `model_seq` ;""" % (
+            model_no
         )
         self.model_no = model_no
         # print(sql_string)
@@ -1013,9 +1028,9 @@ class PTF_MODEL(object):
         res = []
         data_bool = []
         nout_total = 0
-        nin, nsamp = N.shape(
-            data
-        )  # need to be intelligent how data offered, transpose if needed? How to deal with square matrices?
+        nin, nsamp = N.shape(data)
+        # need to be intelligent how data offered, transpose if needed?
+        # How to deal with square matrices?
         # SELECT CODE HERE
 
         for i in range(self.nmodel):  # nmodel refers to the possibility of HYBRID models
