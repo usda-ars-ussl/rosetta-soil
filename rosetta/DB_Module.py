@@ -1,5 +1,5 @@
 '''
-    Rosetta version 3-alpha (3a) 
+    Rosetta version 3-alpha (3a)
     Pedotransfer functions by Schaap et al., 2001 and Zhang and Schaap, 2016.
     Copyright (C) 2016  Marcel G. Schaap
 
@@ -55,7 +55,7 @@ class DB(object):
             except ImportError:
                 print("Python sqlite3 module not installed?")
                 sys.exit (1)
-                
+
             self.Error = sqlite3.Error
 
             try:
@@ -91,8 +91,8 @@ class DB(object):
                                           user = user,
                                           passwd = passwd,
                                           db = db_name)
-                #self.conn.text_factory = str 
-                
+                #self.conn.text_factory = str
+
 
             except self.Error as e:
                 print("Database connection error %d: %s" % (e.args[0], e.args[1]))
@@ -100,7 +100,7 @@ class DB(object):
 
             self.conn.text_factory = bytes
             self.sqlite=False
-            
+
     def __enter__(self):
         return self
 
@@ -118,8 +118,8 @@ class DB(object):
             sys.exit (1)
         return(cursor)
 
-    def commit(self): 
+    def commit(self):
         if self.conn: self.conn.commit()
 
-    def close(self):  
+    def close(self):
         if self.conn: self.conn.close()

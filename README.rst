@@ -13,9 +13,9 @@ There is also an api available at ``handbook60.org``.  For example::
 
     import requests
 
-    data = { 
+    data = {
         "soildata": [
-            [30, 30, 40, 1.5, 0.3, 0.1],  
+            [30, 30, 40, 1.5, 0.3, 0.1],
             [20, 60, 20],
             [55, 25, 20, 1.1],
         ]
@@ -30,17 +30,17 @@ returns the following::
 
     print(r.json())
 
-    {'model_codes': [5, 2, 3], 'rosetta_version': 3, 'stdev': 
-    [[0.013628985468838103, 0.01496917525020338, 0.12948704319399928, 
-    0.0347739236276485, 0.1747797749074611], [0.0067075928037543765, 
-    0.00878582437678383, 0.07413139323912403, 0.013230683219936165, 
-    0.08709445948355408], [0.01277140708670187, 0.013062170576228887, 
-    0.10020312250396954, 0.01763982447621485, 0.14163566888667592]], 
-    'van_genuchten_params': [[0.06872133198419336, 0.38390508534751433, 
-    -2.452968871563431, 0.17827394547955497, 0.9827227259550619], 
-    [0.08994502219206943, 0.4301366480210401, -2.4262357492034043, 
-    0.17568732926631986, 1.192731130984082], [0.09130753033144606, 
-    0.485031958049669, -2.0223880878467875, 0.151071612216524, 
+    {'model_codes': [5, 2, 3], 'rosetta_version': 3, 'stdev':
+    [[0.013628985468838103, 0.01496917525020338, 0.12948704319399928,
+    0.0347739236276485, 0.1747797749074611], [0.0067075928037543765,
+    0.00878582437678383, 0.07413139323912403, 0.013230683219936165,
+    0.08709445948355408], [0.01277140708670187, 0.013062170576228887,
+    0.10020312250396954, 0.01763982447621485, 0.14163566888667592]],
+    'van_genuchten_params': [[0.06872133198419336, 0.38390508534751433,
+    -2.452968871563431, 0.17827394547955497, 0.9827227259550619],
+    [0.08994502219206943, 0.4301366480210401, -2.4262357492034043,
+    0.17568732926631986, 1.192731130984082], [0.09130753033144606,
+    0.485031958049669, -2.0223880878467875, 0.151071612216524,
     1.9060147751706147]]}
 
 See below for information on the expected structure and content of the
@@ -48,7 +48,7 @@ submitted ``soildata`` and returned json payload.
 
 [If your use case involves, e.g., thousands of repeated requests, then
 please install and use ``rosetta-soil`` locally rather than use the api.]
- 
+
 Installation
 ============
 ::
@@ -62,7 +62,7 @@ Quickstart
     >>> from rosetta import rosetta, SoilData
 
     >>> data = [
-            [30,30,40,1.5,0.3,0.1],  
+            [30,30,40,1.5,0.3,0.1],
             [20,60,20],
             [55,25,20,1.1]
         ]
@@ -118,7 +118,7 @@ where
 * th1500 is the soil volumetric water content at 1500 kPa
 
 Three versions of Rosetta are available. The versions effectively represent
-three alternative calibrations of the four Rosetta models. 
+three alternative calibrations of the four Rosetta models.
 The references that should be cited when using Rosetta versions 1, 2,
 and 3 are, respectively:
 
@@ -156,7 +156,7 @@ using the ``from_array`` method.
 ::
 
     data = [
-        [30,30,40,1.5,0.3,0.1],  
+        [30,30,40,1.5,0.3,0.1],
         [20,60,20],
         [55,25,20,1.1]
     ]
@@ -189,7 +189,7 @@ parameters for ith entry in ``soildata``. The array columns are
 +-------+---------------------------------------------------------------+
 |   1   | theta_s, saturated water content                              |
 +-------+---------------------------------------------------------------+
-|   2   | log10(alpha), 'alpha' shape parameter, log10(1/cm)            | 
+|   2   | log10(alpha), 'alpha' shape parameter, log10(1/cm)            |
 +-------+---------------------------------------------------------------+
 |   3   | log10(npar), 'n' shape parameter                              |
 +-------+---------------------------------------------------------------+
@@ -210,7 +210,7 @@ and ``stdev``.
 +------+--------------------------------------------------------+
 |    3 | SSC + bulk density (BD)                                |
 +------+--------------------------------------------------------+
-|    4 | SSC + BD + field capacity water content (TH33)         | 
+|    4 | SSC + BD + field capacity water content (TH33)         |
 +------+--------------------------------------------------------+
 |    5 | SSC + BD + TH33 + wilting point water content (TH1500) |
 +------+--------------------------------------------------------+
@@ -245,7 +245,7 @@ Notes
 This module wraps files taken from
 `research code <http://www.u.arizona.edu/~ygzhang/download.html>`_
 developed by Marcel Schaap and Yonggen Zhang at the University of
-Arizona. 
+Arizona.
 
 The Rosetta class described above has another method,
 Rosetta.ann_predict, which returns additional statistical quantities
@@ -258,8 +258,8 @@ researchers. The usage is the same as Rosetta.predict,
     results = rose33.ann_predict(data, sum_data=True)
 
 However, in this case, the returned ``results`` is a dictionay of parameters
-and statistical results. Note the arrays in ``results`` are the transpose 
+and statistical results. Note the arrays in ``results`` are the transpose
 of what is returned by other functions and methods in ``rosetta-soil``
-See the file ``ANN_Module.py`` and the code base of 
+See the file ``ANN_Module.py`` and the code base of
 `Schaap and Zhang <http://www.u.arizona.edu/~ygzhang/download.html>`_
 for more information.

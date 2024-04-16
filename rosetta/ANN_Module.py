@@ -3,8 +3,8 @@
 
     The global substitutions
 
-    s/dtype=N.float/dtype=float/    (23 substitutions on 23 lines) 
-    s/dtype=N.int)/dtype=int)/      (2 substitutions on 2 lines) 
+    s/dtype=N.float/dtype=float/    (23 substitutions on 23 lines)
+    s/dtype=N.int)/dtype=int)/      (2 substitutions on 2 lines)
 
     were made due to the deprecations noted here:
 
@@ -13,7 +13,7 @@
     T.Skaggs, 2021-06-18
 """
 '''
-    Rosetta version 3-alpha (3a) 
+    Rosetta version 3-alpha (3a)
     Pedotransfer functions by Schaap et al., 2001 and Zhang and Schaap, 2016.
     Copyright (C) 2016  Marcel G. Schaap
 
@@ -122,26 +122,26 @@ class ANN(object):
         assert ntr in [2,3], 'number of transfer functions must be 2 or 3'
         assert nl in [2,3], 'number of layers must be 2 or 3'
         assert nl <= ntr, 'number of layers must be smaller or equal to number of transfer functions'
-        
+
         # the problem is that currently nl=2 but ntr=3 (from DB)
         if nl==2 and ntr==3:
             trhelp=tr[:1]+tr[-1:]
         else: #(nl=2 and ntr=2) OR (nl=3 and ntr=3)
             trhelp=tr
-        
+
         funcs=[]
         funcs_names=[]
         for i in range(nl):
-            if trhelp[i].lower()=='tansig': 
+            if trhelp[i].lower()=='tansig':
                 funcs.append(self.tansig)
                 funcs_names.append('tansig')
-            elif trhelp[i].lower()=='logsig': 
+            elif trhelp[i].lower()=='logsig':
                 funcs.append(self.logsig)
                 funcs_names.append('logsig')
-            elif trhelp[i].lower()=='purelin': 
+            elif trhelp[i].lower()=='purelin':
                 funcs.append(self.purelin)
                 funcs_names.append('purelin')
-            elif trhelp[i].lower()=='none': 
+            elif trhelp[i].lower()=='none':
                 funcs.append(None)
                 funcs_names.append('none')
             else:
@@ -153,7 +153,7 @@ class ANN(object):
     def __init__(self, nlayer=2, transfers=None):
         self.w=[]
         self.b=[]
-        
+
         self.transfer_funcs,self.transfer_names=self.parse_transfer_funcs(nlayer,transfers)
 
         return
@@ -161,7 +161,7 @@ class ANN(object):
     def read(self,fbin,import_bin=False,oldrosetta=False,hash_id=None, model=None):
         '''
         Note: all the numpy fromfiles were removed and replaced with more complex code
-        because numpy expects fbin to be a real file, whereas we also need to be a string 
+        because numpy expects fbin to be a real file, whereas we also need to be a string
         that has been buffered by (c)StringIO
         '''
         assert fbin,'fbin not open in ann.__init__'
@@ -184,7 +184,7 @@ class ANN(object):
         for i in range(self.nlayer):
             self.w.append(self.read_mat(fbin,import_bin)) # weights
             self.b.append(self.read_mat(fbin,import_bin)) # biases
-    
+
     @staticmethod
     def from_stream(fbin, import_bin=False, oldrosetta=False, hash_id=None, model_id=None, nlayer=None, transfers=None):
         ann=ANN(nlayer=nlayer,transfers=transfers) # nlayer and transfers is NOT in the binary file, so need to pull from somewhere else!
@@ -201,7 +201,7 @@ class ANN(object):
             s+=N.array(N.shape(self.b[i]),dtype=N.int32).tostring()
             s+=self.b[i].tostring(order='C')
         return(s)
-    
+
     def db_values(self,with_transfer=False):
         if with_transfer:
             assert len(self.transfer_names) in [2,3], 'length of transfer names is not 2 or 3'
@@ -399,7 +399,7 @@ class ANN_res(object):
             except ValueError:
                 res=999.999
             return(res)
-            
+
         tmp=self.parse_res(line)
         tmp=tmp.split()
         hash_id=tmp[0]
@@ -424,7 +424,7 @@ class ANN_res(object):
 
     def __str__(self):
         return "%s(%r)" % (self.__class__, self.__dict__)
- 
+
 class PS(object):
 
     @property
@@ -444,7 +444,7 @@ class PS(object):
         self.xmax = self.xmax.reshape((self.nvar,1))
         #print(self.xmin.shape)
         #print(self.xmax.shape)
-        
+
         self.ymin = N.ones((self.nvar,1),dtype=float)*ymin
         self.ymax = N.ones((self.nvar,1),dtype=float)*ymax
         #print(self.ymin.shape)
@@ -491,14 +491,14 @@ class PS(object):
         ymax   = N.zeros((self.nvar,),dtype=float)
         gain   = N.zeros((self.nvar,),dtype=float)
         offset = N.zeros((self.nvar,),dtype=float)
-        
+
         sco    = N.zeros((self.nvar,),dtype=float) #offset traditional unscaling of Rostta output
         scs    = N.zeros((self.nvar,),dtype=float) #slope traditional unscaling of Rostta output
         sct    = N.zeros((self.nvar,),dtype=int) # 0: no transform, 1: log10 transform
 
         d_min  = N.zeros((self.nvar,),dtype=float)
         d_max  = N.zeros((self.nvar,),dtype=float)
-        
+
         #self._var_names=[] # moved to _init_
         for i,row in enumerate(data):
             self._var_names.append(row[0].lower())  # somewhow I cannot figure out how to this with property
@@ -523,18 +523,18 @@ class PS(object):
         self.ymax = ymax[:,N.newaxis]
         self.gain = gain[:,N.newaxis]
         self.offset = offset[:,N.newaxis]
-        
+
         #some numpy trickery (convert from 1D to 3D):
-        self.sco=sco[N.newaxis,:,N.newaxis]    
-        self.scs=scs[N.newaxis,:,N.newaxis]    
-        self.sct=sct[N.newaxis,:,N.newaxis]    
+        self.sco=sco[N.newaxis,:,N.newaxis]
+        self.scs=scs[N.newaxis,:,N.newaxis]
+        self.sct=sct[N.newaxis,:,N.newaxis]
 
         #pseudo 2D for data sanity checking (input needs to be in [min..max] (inclusive)
-        self.data_min=d_min[:,N.newaxis]    
-        self.data_max=d_max[:,N.newaxis]    
+        self.data_min=d_min[:,N.newaxis]
+        self.data_max=d_max[:,N.newaxis]
         return
-    
-    def fwd_mapminmax(self,x): 
+
+    def fwd_mapminmax(self,x):
         tmp=(x-self.xmin)*self.gain+self.ymin
         return(tmp)
 
@@ -575,7 +575,7 @@ class PS(object):
         vals=[( self.var_names[i], self.var_pos[i], self.xmin[i, 0], self.xmax[i, 0], self.ymin[i, 0], self.ymax[i, 0], self.gain[i, 0], self.offset[i, 0]) for i in range(self.nvar)]
         cursor.executemany(sql_insert, vals)
         return
-    
+
     def __str__(self):
         return "%s(%r)" % (self.__class__, self.__dict__)
 
@@ -597,7 +597,7 @@ class ANN_MODEL(object):
     def nout(self):return(self.ann_sequence[0].nout)  # hack! ann_sequence[0] should exist
 
     @property
-    def output_var(self):return(self.PS_data_out.var_names)  
+    def output_var(self):return(self.PS_data_out.var_names)
 
     @property
     def model_id(self): return(self._model_id)
@@ -605,7 +605,7 @@ class ANN_MODEL(object):
     def model_id(self,value): self._model_id=value
 
     @property
-    def input_var(self):return(self.PS_data_in.var_names)  
+    def input_var(self):return(self.PS_data_in.var_names)
 
     def __init__(self, model_id, db):
 
@@ -621,7 +621,7 @@ class ANN_MODEL(object):
 
         #whoops, next line needs to be out of loop...
         self.ann_sequence=[ANN.from_stream(io.BytesIO(ann_bin), nlayer=nlayer, transfers=[nhid1_transfer, nhid2_transfer, nout_transfer]) for (hash_id, seq, model_id, nin, nlayer, nhid1, nhid1_transfer, nhid2, nhid2_transfer, nout, nout_transfer, ann_bin) in tmp_list]
-            
+
         assert len(self.ann_sequence) >0, "Error cannot get the ANNs from the DB"
 
         self.model_id=model_id
@@ -633,7 +633,7 @@ class ANN_MODEL(object):
             self.PS_data_out = PS.from_DB(cursor, model_id,'Models_out_var')
 
         with closing(db.get_cursor()) as cursor:
-            self.PS_data_in  = PS.from_DB(cursor, model_id,'Models_in_var') 
+            self.PS_data_in  = PS.from_DB(cursor, model_id,'Models_in_var')
 
         return
 
@@ -653,11 +653,11 @@ class ANN_MODEL(object):
         data_valid = N.compress(data_bool,data,axis=1)  #selects only valid samples
         data_ind = N.nonzero(data_bool)
         #above could be decorator
-        
-        data_in_mm=self.PS_data_in.fwd_mapminmax(data_valid) 
+
+        data_in_mm=self.PS_data_in.fwd_mapminmax(data_valid)
         res_tmp=N.zeros((self.nmodel, self.nout, nsamp_valid),dtype=float)
 
-        for i,ann in enumerate(self.ann_sequence): 
+        for i,ann in enumerate(self.ann_sequence):
             try:
                 res=ann.predict(data_in_mm)
             except FloatingPointError:
@@ -676,7 +676,7 @@ class ANN_MODEL(object):
         else:
             print("ERROR nsamp_valid > nsamp (should be impossible")
             sys.exit(0)
-   
+
         return(res_fin,self.PS_data_out.var_names,data_bool)
 
 
@@ -686,24 +686,24 @@ class PTF_MODEL(object):
     #model_id should be an individual model
 
     @property
-    def model_no(self):return(self._model_no)  
+    def model_no(self):return(self._model_no)
     @model_no.setter
-    def model_no(self,val):self._model_no=val  
+    def model_no(self,val):self._model_no=val
 
     @property
-    def model_name(self):return(self._model_name)  
+    def model_name(self):return(self._model_name)
     @model_name.setter
-    def model_name(self,val):self._model_name=val  
+    def model_name(self,val):self._model_name=val
 
     @property
-    def model_id(self):return(self._model_id)  
+    def model_id(self):return(self._model_id)
     @model_id.setter
-    def model_id(self,val):self._model_id=val  
+    def model_id(self,val):self._model_id=val
 
     @property
-    def model_seq(self):return(self._model_seq)  
+    def model_seq(self):return(self._model_seq)
     @model_seq.setter
-    def model_seq(self,val):self._model_seq=val  
+    def model_seq(self,val):self._model_seq=val
 
     @property
     def input_var(self):return(self.ann_models[0].PS_data_in.var_names)  # the [0] is a hack
@@ -757,7 +757,7 @@ class PTF_MODEL(object):
 
         return(avg,std,cov,skew,kurt)
 
-    def predict(self,data_in,sum_data=True): 
+    def predict(self,data_in,sum_data=True):
 
         #make sure data is a numpy thing
         data=N.array(data_in,dtype=float)
@@ -815,9 +815,9 @@ class PTF_MODEL(object):
         res_dict['nout']= nout_total
         res_dict['nin']=nin
 
-        
+
         return(res_dict)
             #return(varout,res,data_bool)
-            
 
-        
+
+
