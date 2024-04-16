@@ -864,9 +864,11 @@ class ANN_MODEL(object):
         return
 
     def get_variables(self, model_id, db, table):
-        sql_string = (
-            "SELECT `model_id`,`var_id`,`var_pos` FROM `%s`  WHERE `model_id`= %s  ORDER BY `var_pos`;"
-            % (table, model)
+        sql_string = """SELECT `model_id`,`var_id`,`var_pos`
+               FROM `%s`
+               WHERE `model_id`= %s  ORDER BY `var_pos`;""" % (
+            table,
+            model_id,
         )
         with closing(db.get_cursor()) as cursor:
             cursor.execute(sql_string)
