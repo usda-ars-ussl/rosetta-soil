@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from importlib.resources import files
+import importlib
 from typing import List, NamedTuple, Optional, Sequence, Tuple, Union
 
 import numpy as np
