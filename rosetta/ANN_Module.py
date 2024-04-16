@@ -1,3 +1,13 @@
+import hashlib
+import io
+import os
+import struct
+import sys
+from contextlib import closing
+from functools import reduce
+
+import numpy as N
+
 """
     This GPLv2+ file has been modified.
 
@@ -36,17 +46,6 @@
     mschaap@cals.arizona.edu
 
 """
-
-import gzip
-import hashlib
-import io
-import os
-import struct
-import sys
-from contextlib import closing
-from functools import reduce
-
-import numpy as N
 
 
 class ANN(object):
