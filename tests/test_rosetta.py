@@ -73,13 +73,7 @@ def test_soildata() -> None:
     assert sf3.is_valid(5) == [True, False, True]
 
     npt.assert_array_equal(sf.to_array(), np.array([dat2[0] + 3 * [np.nan]]))
-    # npt.assert_array_equal(
-    #    sf2.to_array(4), np.array([dat2[0] + [np.nan], dat2[1] + [np.nan]])
-    # )
     npt.assert_array_equal(sf3.to_array(), np.array(dat3))
-    # npt.assert_array_equal(
-    #    sf3.to_array(4), np.array([[30, 40, 30, 1], [30, 40, 30, 1], [30, 40, 30, 1]])
-    # )
 
 
 def test_rosetta() -> None:

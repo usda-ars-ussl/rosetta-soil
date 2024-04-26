@@ -131,7 +131,6 @@ class ANN(object):
         )
         assert size[0] < 100, "error"
         assert size[1] < 100, "error"
-        # print(size)
         mat = N.zeros(size)
         if import_bin:
             # columns change fastest (Matlab, order=F)
@@ -216,7 +215,6 @@ class ANN(object):
         if oldrosetta:
             self.nlayer = self.nlayer + 1
 
-        # print(self.cnf)
         for i in range(self.nlayer):
             self.w.append(self.read_mat(fbin, import_bin))  # weights
             self.b.append(self.read_mat(fbin, import_bin))  # biases
@@ -299,24 +297,11 @@ class ANN(object):
     def predict(self, x):
         tmp = N.copy(x)
         dot = N.dot
-        # print("inp ",tmp)
         for i in range(self.nlayer):
-            # print("dot",i)
-            # print(self.w[i].shape)
-            # print(self.w[i])
             tmp = dot(self.w[i], tmp)
-            # print("mul ",tmp)
-            # print(tmp[:,:5])
-            # print("plus",i)
-            # print(self.b[i])
             tmp = tmp + self.b[i]
-            # print("add ",tmp)
-            # print(tmp[:,:5])
-            # print("tranfer",i)
             tmp = self.transfer_funcs[i](tmp)
-            # print("tfunc ",tmp)
 
-            # print(tmp[:,:5])
         return tmp
 
     def tansig(self, x):
@@ -549,7 +534,6 @@ class ANN_res(object):
         tmp = tmp.split()
         hash_id = tmp[0]
         assert len(hash_id) == 32, "hash_id not of len 32"
-        # conv=(int,int,int,int,int,float,float,float,float,int)  #Yonggen
         conv = (
             int,
             int,
@@ -619,19 +603,12 @@ class PS(object):
         self.nvar = len(self.xmin)
         self.xmin = self.xmin.reshape((self.nvar, 1))
         self.xmax = self.xmax.reshape((self.nvar, 1))
-        # print(self.xmin.shape)
-        # print(self.xmax.shape)
 
         self.ymin = N.ones((self.nvar, 1), dtype=float) * ymin
         self.ymax = N.ones((self.nvar, 1), dtype=float) * ymax
-        # print(self.ymin.shape)
-        # print(self.ymax.shape)
 
         self.gain = (self.ymax - self.ymin) / (self.xmax - self.xmin)
-        # print(self.gain)
         self.gain = self.gain.reshape((self.nvar, 1))  # convert to matrix
-        # print(self.gain)
-        # print(self.gain.shape)
         self.offset = self.xmin
 
         assert len(var_names) == self.nvar, "len(var_names)!=self.nvar"
@@ -666,7 +643,6 @@ class PS(object):
     def parse_query(self, cursor):
 
         data = list(cursor)
-        # print(data)
         self.nvar = len(data)
 
         xmin = N.zeros((self.nvar,), dtype=float)
@@ -683,7 +659,6 @@ class PS(object):
         d_min = N.zeros((self.nvar,), dtype=float)
         d_max = N.zeros((self.nvar,), dtype=float)
 
-        # self._var_names=[] # moved to _init_
         for i, row in enumerate(data):
             self._var_names.append(
                 row[0].lower()
@@ -735,10 +710,6 @@ class PS(object):
     def check_data(self, data_in):
         # yield 2D array of bools
         nvar, nsamp = N.shape(data_in)
-        # print("MINIMUM")
-        # print(self.data_min)
-        # print("MAXIMUM")
-        # print(self.data_max)
         res = N.logical_and(
             N.greater_equal(data_in, self.data_min),
             N.less_equal(data_in, self.data_max),
@@ -748,7 +719,7 @@ class PS(object):
         # check that sand+silt+clay exist in var_names
         ssc_set = set(["sand", "silt", "clay"])
         vnset = set(self.var_names)
-        # print(self.var_names)
+
         if ssc_set.issubset(vnset):
             # sand, silt,clay are input and must sum to [99..101]
             ssc_sum = N.zeros((nsamp,), dtype=float)
@@ -828,15 +799,11 @@ class ANN_MODEL(object):
 
     def __init__(self, model_id, db):
 
-        # print("HERE",db.conn.text_factory)
         with closing(db.get_cursor()) as cursor:
 
-            # print(self.ann_query_clause % (model_id))
             cursor.execute(self.ann_query_clause % (model_id))
             # this should be its own class, with PS for input and output, plus scaling
             tmp_list = list(cursor)
-            # print(len(tmp_list))
-            # print(tmp_list[0:4])
 
         # whoops, next line needs to be out of loop...
         self.ann_sequence = [
@@ -865,9 +832,6 @@ class ANN_MODEL(object):
 
         self.model_id = model_id
 
-        #        self.model_name=self.get_model_name(model_id,db)
-        #        print(self.model_name)
-
         with closing(db.get_cursor()) as cursor:
             self.PS_data_out = PS.from_DB(cursor, model_id, "Models_out_var")
 
@@ -890,7 +854,6 @@ class ANN_MODEL(object):
 
     def predict(self, data):
 
-        # print('data_in_un',data[:,:10])
         nvar, nsamp = N.shape(data)
         data_bool = self.PS_data_in.check_data(data)
         nsamp_valid = N.sum(data_bool)
@@ -908,7 +871,6 @@ class ANN_MODEL(object):
                 print((i, self.model_id, ann.hash_id))
             res_tmp[i] = res
 
-        # res_tmp=self.PS_data_out.bwd_mapminmax(res_tmp) #Yonggen
         res_tmp = self.PS_data_out.unscale(res_tmp)
 
         if nsamp == nsamp_valid:
@@ -973,7 +935,7 @@ class PTF_MODEL(object):
             model_no
         )
         self.model_no = model_no
-        # print(sql_string)
+
         with closing(db.get_cursor()) as cursor:
             cursor.execute(sql_string)
 
@@ -1005,10 +967,8 @@ class PTF_MODEL(object):
         std = N.zeros((nvar, nsamp), dtype=float)
         skew = N.zeros((nvar, nsamp), dtype=float)
         kurt = N.zeros((nvar, nsamp), dtype=float)
-        # print(N.shape(res))
         cov = N.zeros((nvar, nvar, nsamp), dtype=float)
         for i in range(nsamp):
-            # print(N.shape(res[:,:,i]))
             cov[:, :, i] = N.cov(res[:, :, i], rowvar=0, ddof=0)
             std[:, i] = N.sqrt(N.diag(cov[:, :, i]))
             s, k = skewkurt(res[:, :, i], avg[:, i], std[:, i])
@@ -1038,7 +998,6 @@ class PTF_MODEL(object):
             # print("model_no %s, model_id %s" %(self.model_no,self.ann_models[i].model_id))
             # res (3D), varnames (1D), bool of valid data (1D?)
             r, v, b = self.ann_models[i].predict(data)
-            # print(N.shape(r))
             res.append(r)
             varout.append(v)
             data_bool.append(b)
@@ -1098,4 +1057,3 @@ class PTF_MODEL(object):
         res_dict["nin"] = nin
 
         return res_dict
-        # return(varout,res,data_bool)

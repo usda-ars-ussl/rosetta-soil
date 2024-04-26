@@ -69,9 +69,8 @@ class DB(object):
                 print("Database connection error %d: %s" % (e.args[0], e.args[1]))
                 sys.exit(1)
 
-            # self.conn.text_factory = str # needed to get the binary data from sqlite
+            # needed to get the binary data from sqlite
             self.conn.text_factory = bytes
-            # self.conn.text_factory = lambda x: str(x, 'iso-8859-1')
             self.sqlite = True
         else:
 
@@ -93,7 +92,6 @@ class DB(object):
             passwd = getpass.getpass()
             try:
                 self.conn = MySQLdb.connect(host=host, user=user, passwd=passwd, db=db_name)
-                # self.conn.text_factory = str
 
             except self.Error as e:
                 print("Database connection error %d: %s" % (e.args[0], e.args[1]))
