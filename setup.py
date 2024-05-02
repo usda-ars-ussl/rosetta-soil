@@ -25,7 +25,7 @@ setup(
     url="https://github.com/usda-ars-ussl/rosetta-soil",
     packages=["rosetta"],
     package_data={"rosetta": ["sqlite/Rosetta.sqlite"]},
-    python_requires=">=3.7",
+    python_requires=">=3.10",
     install_requires=["numpy"],
     zip_safe=False,
     license="License :: OSI Approved :: GNU General Public License v2 or later (GPLv2+)",
@@ -35,8 +35,5 @@ setup(
         "Intended Audience :: Science/Research",
         "Topic :: Scientific/Engineering",
         "License :: OSI Approved :: GNU General Public License v2 or later (GPLv2+)",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
     ],
 )
