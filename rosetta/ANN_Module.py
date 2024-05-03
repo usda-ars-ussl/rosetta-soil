@@ -189,9 +189,7 @@ class ANN(object):
         self.w = []
         self.b = []
 
-        self.transfer_funcs, self.transfer_names = self.parse_transfer_funcs(
-            nlayer, transfers
-        )
+        self.transfer_funcs, self.transfer_names = self.parse_transfer_funcs(nlayer, transfers)
 
         return
 
@@ -257,7 +255,11 @@ class ANN(object):
                 3,
             ], "length of transfer names is not 2 or 3"
             if len(self.transfer_names) == 2:
-                trhelp_names = [self.transfer_names[0], "none", self.transfer_names[1]]
+                trhelp_names = [
+                    self.transfer_names[0],
+                    "none",
+                    self.transfer_names[1],
+                ]
             else:
                 trhelp_names = self.transfer_names
             return (
@@ -292,9 +294,11 @@ class ANN(object):
     @staticmethod
     def db_string(with_transfer=False):
         if with_transfer:
-            return " replica_hash, ann_hash, seq, model_id, nin, nlayer, nhid1, nhid1_transfer, nhid2, nhid2_transfer, nout, nout_transfer, ann_bin "
+            return " replica_hash, ann_hash, seq, model_id, nin, nlayer, nhid1, nhid1_transfer, nhid2, nhid2_transfer, nout, nout_transfer, ann_bin "  # noqa: E501
         else:
-            return " replica_hash, ann_hash, seq, model_id, nin, nlayer, nhid1, nhid2, nout, ann_bin "
+            return (
+                " replica_hash, ann_hash, seq, model_id, nin, nlayer, nhid1, nhid2, nout, ann_bin "  # noqa: E501
+            )
 
     def predict(self, x):
         tmp = N.copy(x)
@@ -324,9 +328,7 @@ class ANN(object):
         return y
 
     def logsig(self, x):
-        y = 1.0 / (
-            1.0 + N.exp(-1.0 * x)
-        )  # <- forgot the minus sign, so old rosetta didn't work...
+        y = 1.0 / (1.0 + N.exp(-1.0 * x))  # <- forgot the minus sign, so old rosetta didn't work...
         return y
 
     def purelin(self, x):
@@ -394,10 +396,11 @@ class REPLICA(object):
     def split_boot(self, line, oldrosetta=False):
         if oldrosetta:
             pat = N.array([int(i) for i in line.split()], dtype=N.int8)
-            # OK we made an error in the MATLAB code.  I intended to use SHA-1 there, but it defaulted to MD5
-            # SHA-1 returns 32 hex char, and sha-1 returns 40
-            # since we are 'stuck' with 32 (new rosetta) for the replicas, we should also use md5 for old rosetta
-            # the replica-hash appears in the binary blob, and it is troublesome to change it now.
+            # OK we made an error in the MATLAB code.  I intended to use SHA-1 there,
+            # but it defaulted to MD5 SHA-1 returns 32 hex char, and sha-1 returns 40
+            # since we are 'stuck' with 32 (new rosetta) for the replicas, we should also
+            # use md5 for old rosetta the replica-hash appears in the binary blob, and
+            # it is troublesome to change it now.
             # the hashes are supposed to be identifiers only.
             hash_id = hashlib.md5(pat.tostring()).hexdigest()
             # print(len(hash_id))
@@ -589,7 +592,7 @@ class ANN_res(object):
 
     @staticmethod
     def db_string():
-        return " replica_hash, seq, model_id, nhid, nc, nv, vgc_rmse, vgc_me, vgv_rmse, vgv_me, ksc_rmse, ksc_me, ksv_rmse, ksv_me, nfail "
+        return " replica_hash, seq, model_id, nhid, nc, nv, vgc_rmse, vgc_me, vgv_rmse, vgv_me, ksc_rmse, ksc_me, ksv_rmse, ksv_me, nfail "  # noqa: E501
 
     @staticmethod
     def from_stream(s):
@@ -651,7 +654,7 @@ class PS(object):
         assert cursor, "bad cursor"
         PSdata = PS()
         sql_query = (
-            "SELECT var_name, V.var_id, xmin, xmax, ymin, ymax, gain, offset, sco, scs, sct, data_min, data_max FROM `minmax` as M JOIN `%s` as V ON (M.var_id=V.var_id) WHERE V.model_id= %s  ORDER by `var_pos` ;"
+            "SELECT var_name, V.var_id, xmin, xmax, ymin, ymax, gain, offset, sco, scs, sct, data_min, data_max FROM `minmax` as M JOIN `%s` as V ON (M.var_id=V.var_id) WHERE V.model_id= %s  ORDER by `var_pos` ;"  # noqa: E501
             % (model_var_table, model_id)
         )  # we convert to tuple so we get the proper formatting for MySQL
         cursor.execute(sql_query)
@@ -671,12 +674,8 @@ class PS(object):
         gain = N.zeros((self.nvar,), dtype=float)
         offset = N.zeros((self.nvar,), dtype=float)
 
-        sco = N.zeros(
-            (self.nvar,), dtype=float
-        )  # offset traditional unscaling of Rostta output
-        scs = N.zeros(
-            (self.nvar,), dtype=float
-        )  # slope traditional unscaling of Rostta output
+        sco = N.zeros((self.nvar,), dtype=float)  # offset traditional unscaling of Rostta output
+        scs = N.zeros((self.nvar,), dtype=float)  # slope traditional unscaling of Rostta output
         sct = N.zeros((self.nvar,), dtype=int)  # 0: no transform, 1: log10 transform
 
         d_min = N.zeros((self.nvar,), dtype=float)
@@ -762,7 +761,7 @@ class PS(object):
 
     def DB_store(self, cursor):
         assert cursor, "bad cursor"
-        sql_insert = "INSERT INTO `minmax` ( var_name, var_pos, xmin, xmax, ymin, ymax, gain, offset ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s )"
+        sql_insert = "INSERT INTO `minmax` ( var_name, var_pos, xmin, xmax, ymin, ymax, gain, offset ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s )"  # noqa: E501
         vals = [
             (
                 self.var_names[i],
@@ -785,7 +784,7 @@ class PS(object):
 
 class ANN_MODEL(object):
 
-    ann_query_clause = "SELECT A.replica_hash, A.seq, A.model_id, A.nin, A.nlayer, A.nhid1, A.nhid1_transfer, A.nhid2, A.nhid2_transfer, A.nout,A.nout_transfer, A.ann_bin FROM `Ann` as A JOIN Ann_res AS R ON (A.replica_hash=R.replica_hash) WHERE A.model_id= %s and R.model_id=A.model_id and R.nfail=0"
+    ann_query_clause = "SELECT A.replica_hash, A.seq, A.model_id, A.nin, A.nlayer, A.nhid1, A.nhid1_transfer, A.nhid2, A.nhid2_transfer, A.nout,A.nout_transfer, A.ann_bin FROM `Ann` as A JOIN Ann_res AS R ON (A.replica_hash=R.replica_hash) WHERE A.model_id= %s and R.model_id=A.model_id and R.nfail=0"  # noqa: E501
 
     @property
     def ann_sequence(self):
@@ -871,7 +870,7 @@ class ANN_MODEL(object):
 
     def get_variables(self, model_id, db, table):
         sql_string = (
-            "SELECT `model_id`,`var_id`,`var_pos` FROM `%s`  WHERE `model_id`= %s  ORDER BY `var_pos`;"
+            "SELECT `model_id`,`var_id`,`var_pos` FROM `%s`  WHERE `model_id`= %s  ORDER BY `var_pos`;"   # noqa: E501
             % (table, model)
         )
         with closing(db.get_cursor()) as cursor:
@@ -958,7 +957,7 @@ class PTF_MODEL(object):
     def __init__(self, model_no, db):
 
         sql_string = (
-            "SELECT `model_no`,`model_name`,`model_id`,`model_seq` FROM `Models_names` WHERE `model_no`= %s ORDER BY `model_seq` ;"
+            "SELECT `model_no`,`model_name`,`model_id`,`model_seq` FROM `Models_names` WHERE `model_no`= %s ORDER BY `model_seq` ;"  # noqa: E501
             % (model_no)
         )
         self.model_no = model_no
@@ -1019,12 +1018,12 @@ class PTF_MODEL(object):
         nout_total = 0
         nin, nsamp = N.shape(
             data
-        )  # need to be intelligent how data offered, transpose if needed? How to deal with square matrices?
+        )
+        # need to be intelligent how data offered, transpose if needed?
+        # How to deal with square matrices?
         # SELECT CODE HERE
 
-        for i in range(
-            self.nmodel
-        ):  # nmodel refers to the possibility of HYBRID models
+        for i in range(self.nmodel):  # nmodel refers to the possibility of HYBRID models
             # TODO: for oldrosetta unsat_k model we need to put output in data
             # print("model_no %s, model_id %s" %(self.model_no,self.ann_models[i].model_id))
             # res (3D), varnames (1D), bool of valid data (1D?)
@@ -1047,9 +1046,7 @@ class PTF_MODEL(object):
             sum_res_cov = N.zeros((nout_total, nout_total, nsamp), dtype=float)
             sum_res_bool = N.zeros((nout_total, nsamp), dtype=bool)
             offset = 0
-            for i in range(
-                self.nmodel
-            ):  # nmodel refers to the possibility of HYBRID models
+            for i in range(self.nmodel):  # nmodel refers to the possibility of HYBRID models
                 var_names += varout[i]  # could indicate log units
                 nvar = len(varout[i])
                 mean, std, cov, skew, kurt = self.sum_stat(res[i], nvar, nsamp)
@@ -1085,9 +1082,7 @@ class PTF_MODEL(object):
                 )
             )
         else:
-            res_dict = dict(
-                zip(["varout", "res", "data_bool"], [varout, res, data_bool])
-            )
+            res_dict = dict(zip(["varout", "res", "data_bool"], [varout, res, data_bool]))
         res_dict["nsamp"] = nsamp
         res_dict["nout"] = nout_total
         res_dict["nin"] = nin

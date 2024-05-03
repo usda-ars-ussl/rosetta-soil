@@ -141,9 +141,7 @@ class Rosetta:
         return self.ptf_model.predict(X.T, sum_data=sum_data)
 
 
-def rosetta(
-    rosetta_version: int, soildata: SoilData
-) -> Tuple[Array2D, Array2D, Array1D]:
+def rosetta(rosetta_version: int, soildata: SoilData) -> Tuple[Array2D, Array2D, Array1D]:
     """Predict soil hydraulic parameters from soil characterization data.
 
     Parameters

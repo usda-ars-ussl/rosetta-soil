@@ -92,9 +92,7 @@ class DB(object):
             print("Password for Rosetta database on MySQL server:")
             passwd = getpass.getpass()
             try:
-                self.conn = MySQLdb.connect(
-                    host=host, user=user, passwd=passwd, db=db_name
-                )
+                self.conn = MySQLdb.connect(host=host, user=user, passwd=passwd, db=db_name)
                 # self.conn.text_factory = str
 
             except self.Error as e:

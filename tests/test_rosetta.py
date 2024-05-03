@@ -99,10 +99,7 @@ def test_rosetta() -> None:
     from rosetta import SoilData, rosetta
 
     def parse(raw: str) -> List[List[float]]:
-        return [
-            [float(s) for s in row]
-            for row in [r.split() for r in raw.strip().split("\n")]
-        ]
+        return [[float(s) for s in row] for row in [r.split() for r in raw.strip().split("\n")]]
 
     FEATURES = parse(FEATURES)
 
@@ -129,9 +126,7 @@ def test_rosetta() -> None:
         jcol = mod + 1
         arr, stdev, codes = rosetta(ver, SoilData.from_array([f[:jcol] for f in FEATURES]))
         npt.assert_equal(codes, np.array(len(FEATURES) * [mod], dtype=int))
-        npt.assert_array_almost_equal(
-            arr, DESIRED[f"r{ver}m{mod}"], decimal=5 if ver == 2 else 10
-        )
+        npt.assert_array_almost_equal(arr, DESIRED[f"r{ver}m{mod}"], decimal=5 if ver == 2 else 10)
 
     features = FEATURES[:]
     features[0][0] = np.nan
@@ -167,7 +162,8 @@ def test_rosetta() -> None:
 
 def test_error() -> None:
     import pytest
-    from rosetta import rosetta, RosettaError, SoilData
+
+    from rosetta import RosettaError, SoilData, rosetta
 
     with pytest.raises(RosettaError):
         _ = rosetta(-99, SoilData.from_array([[1, 2, 3]]))
