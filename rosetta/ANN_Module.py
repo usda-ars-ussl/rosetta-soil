@@ -1,12 +1,12 @@
-import numpy as N
-import os
-import sys
-import io
-import struct
 import hashlib
+import io
+import os
+import struct
+import sys
 from contextlib import closing
 from functools import reduce
 
+import numpy as N
 
 """
     This GPLv2+ file has been modified.

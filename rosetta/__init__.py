@@ -1,1 +1,1 @@
-from .rosetta import rosetta, RosettaError, SoilData, Rosetta
+from .rosetta import Rosetta, RosettaError, SoilData, rosetta

@@ -80,8 +80,6 @@ def test_rosetta() -> None:
     import itertools
     from typing import List
 
-    from rosetta import rosetta, SoilData
-
     from data import (
         FEATURES,
         ROSE1_MOD2,
@@ -97,6 +95,8 @@ def test_rosetta() -> None:
         ROSE3_MOD4,
         ROSE3_MOD5,
     )
+
+    from rosetta import SoilData, rosetta
 
     def parse(raw: str) -> List[List[float]]:
         return [
