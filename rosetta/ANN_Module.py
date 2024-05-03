@@ -42,7 +42,6 @@ import os
 import sys
 import io
 import struct
-import gzip
 import hashlib
 from contextlib import closing
 from functools import reduce
