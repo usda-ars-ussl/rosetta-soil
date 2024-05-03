@@ -121,7 +121,7 @@ class Rosetta:
         self.rosetta_version = rosetta_version
         self.model_code = model_code
         code = model_code if rosetta_version == 3 else model_code + 100
-        rosetta_db_path = resources.files(sqlite) / 'Rosetta.sqlite'
+        rosetta_db_path = resources.files(sqlite) / "Rosetta.sqlite"
         with DB_Module.DB(0, 0, 0, sqlite_path=rosetta_db_path) as db:
             self.ptf_model = ANN_Module.PTF_MODEL(code, db)
 
@@ -160,7 +160,7 @@ def rosetta(
     (mean, stdev, codes)
 
     mean : 2D np.array, dtype=float
-        
+
         ith row holds predicted soil hydraulic parameters for ith entry
         in `soildata`.
 
@@ -200,7 +200,7 @@ def rosetta(
     # sa, si, and cl are required; others optional
 
     >>> data = [
-            [30,30,40,1.5,0.3,0.1],  
+            [30,30,40,1.5,0.3,0.1],
             [20,60,20],
             [55,25,20,1.1]
         ]
