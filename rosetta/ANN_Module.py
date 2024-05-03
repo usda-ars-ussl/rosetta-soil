@@ -3,8 +3,8 @@
 
     The global substitutions
 
-    s/dtype=N.float/dtype=float/    (23 substitutions on 23 lines) 
-    s/dtype=N.int)/dtype=int)/      (2 substitutions on 2 lines) 
+    s/dtype=N.float/dtype=float/    (23 substitutions on 23 lines)
+    s/dtype=N.int)/dtype=int)/      (2 substitutions on 2 lines)
 
     were made due to the deprecations noted here:
 
@@ -14,7 +14,7 @@
 """
 
 """
-    Rosetta version 3-alpha (3a) 
+    Rosetta version 3-alpha (3a)
     Pedotransfer functions by Schaap et al., 2001 and Zhang and Schaap, 2016.
     Copyright (C) 2016  Marcel G. Schaap
 
