@@ -1,0 +1,35 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
+name = "rosetta-soil"
+dynamic = ["version"]
+dependencies = ["numpy"]
+authors = [{ name="Todd Skaggs", email="todd.skaggs@usda.gov" }]
+description = "Predict soil hydraulic parameters from basic soil properties."
+readme = "README.rst"
+requires-python = ">=3.11"
+classifiers=[
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering",
+]
+
+[project.urls]
+Homepage = "https://github.com/usda-ars-ussl/rosetta-soil"
+
+[tool.hatch.build]
+packages = ["src/rosetta"]
+
+[tool.hatch.build.targets.wheel]
+include = [
+  "src/rosetta/data/unsat_k_nn.npz",
+  "src/rosetta/data/Rosetta.sqlite",
+]
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.build.hooks.version]
+path = "src/rosetta/_version.py"
+
