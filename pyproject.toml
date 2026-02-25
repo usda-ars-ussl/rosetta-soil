@@ -23,8 +23,19 @@ packages = ["src/rosetta"]
 
 [tool.hatch.build.targets.wheel]
 include = [
-  "src/rosetta/data/unsat_k_nn.npz",
-  "src/rosetta/data/Rosetta.sqlite",
+  "src/rosetta/data/rose1_mod2_0.npz",
+  "src/rosetta/data/rose1_mod2_1.npz",
+  "src/rosetta/data/rose1_mod3_0.npz",
+  "src/rosetta/data/rose1_mod3_1.npz",
+  "src/rosetta/data/rose1_mod4_0.npz",
+  "src/rosetta/data/rose1_mod4_1.npz",
+  "src/rosetta/data/rose1_mod5_0.npz",
+  "src/rosetta/data/rose1_mod5_1.npz",
+  "src/rosetta/data/rose1_unsat_k.npz",
+  "src/rosetta/data/rose3_mod2_0.npz",
+  "src/rosetta/data/rose3_mod3_0.npz",
+  "src/rosetta/data/rose3_mod4_0.npz",
+  "src/rosetta/data/rose3_mod5_0.npz",
 ]
 
 [tool.hatch.version]
