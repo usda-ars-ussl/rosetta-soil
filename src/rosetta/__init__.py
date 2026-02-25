@@ -1,3 +1,3 @@
-from .rosetta import rosetta, rosesoil, RosettaError, SoilData, Rosetta
+from .rosetta import  rosesoil, rosetta, Rosetta, UnsaturatedK, SoilData, RosettaError
 from ._version import __version__
 

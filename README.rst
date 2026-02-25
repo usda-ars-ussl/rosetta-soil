@@ -1,53 +1,11 @@
-This package provides an implementation of **Rosetta**, a neural
-network-based model for predicting unasturated soil hydraulic parameters
+This package provides an implementation of **Rosetta**, a group of
+neural network model for predicting unasturated soil hydraulic parameters
 from basic soil characterization data.
 
-How to avoid installing this package
-====================================
+For many use cases it is not necessary to install this package
+-- there is a web browser interface and an api to ``rosetta-soil`` that
+is available at `<https://www.handbook60.org/rosetta>`_
 
-For most Rosetta use cases, we recommend using the web browser interface
-to ``rosetta-soil`` that is available at
-`<https://www.handbook60.org/rosetta>`_
-
-There is also an api available at ``handbook60.org``.  For example::
-
-    import requests
-
-    data = { 
-        "soildata": [
-            [30, 30, 40, 1.5, 0.3, 0.1],  
-            [20, 60, 20],
-            [55, 25, 20, 1.1],
-        ]
-    }
-
-    def url(rosetta_version: int) -> str:
-        return f"http://www.handbook60.org/api/v1/rosetta/{rosetta_version}"
-
-    r = requests.post(url(3), json=data)
-
-returns the following::
-
-    print(r.json())
-
-    {'model_codes': [5, 2, 3], 'rosetta_version': 3, 'stdev': 
-    [[0.013628985468838103, 0.01496917525020338, 0.12948704319399928, 
-    0.0347739236276485, 0.1747797749074611], [0.0067075928037543765, 
-    0.00878582437678383, 0.07413139323912403, 0.013230683219936165, 
-    0.08709445948355408], [0.01277140708670187, 0.013062170576228887, 
-    0.10020312250396954, 0.01763982447621485, 0.14163566888667592]], 
-    'van_genuchten_params': [[0.06872133198419336, 0.38390508534751433, 
-    -2.452968871563431, 0.17827394547955497, 0.9827227259550619], 
-    [0.08994502219206943, 0.4301366480210401, -2.4262357492034043, 
-    0.17568732926631986, 1.192731130984082], [0.09130753033144606, 
-    0.485031958049669, -2.0223880878467875, 0.151071612216524, 
-    1.9060147751706147]]}
-
-See below for information on the expected structure and content of the
-submitted ``soildata`` and returned json payload.
-
-[If your use case involves, e.g., thousands of repeated requests, then
-please install and use ``rosetta-soil`` locally rather than use the api.]
  
 Installation
 ============
@@ -59,43 +17,53 @@ Quickstart
 ==========
 ::
 
-    >>> from rosetta import rosetta, SoilData
+    >>> from rosetta import rosetta
+
+    # required ordering for data records:
+    # [sa (%), si (%), cl (%), bd (g/cm3), th33, th1500]
+    # sa, si, and cl are required; others optional
 
     >>> data = [
-            [30,30,40,1.5,0.3,0.1],  
+            [30,30,40,1.5,0.3,0.1],
             [20,60,20],
             [55,25,20,1.1]
         ]
 
-    >>> mean, stdev, codes = rosetta(3, SoilData.from_array(data))
+    >>> mean, stdev, codes = rosetta(3, data)
 
-    >>> print(mean)
-    [[ 0.06872133  0.38390509 -2.45296887  0.17827395  0.98272273]
-    [ 0.08994502  0.43013665 -2.42623575  0.17568733  1.19273113]
-    [ 0.09130753  0.48503196 -2.02238809  0.15107161  1.90601478]]
+    >>> with np.printoptions(precision=4, suppress=True):
+    ...     print(mean)
 
-    >>> print(stdev)
-    [[ 0.01362899 0.01496918 0.12948704 0.03477392 0.17477977]
-    [ 0.00670759 0.00878582 0.07413139 0.01323068 0.08709446]
-    [ 0.01277141 0.01306217 0.10020312 0.01763982 0.14163567]]
+    [[ 0.0687  0.3839  0.0037  1.5123 10.4522  1.0203  0.2242]
+     [ 0.0899  0.4301  0.0038  1.4993 15.8995  0.8909  0.1726]
+     [ 0.0913  0.485   0.0097  1.4172 84.7834  2.9015 -0.3463]]
+
+    >>> with np.printoptions(precision=4, suppress=True):
+    ...  print(stdev)
+
+    [[ 0.0136  0.015   0.0012  0.1176  4.816   0.4968  1.4017]
+     [ 0.0067  0.0088  0.0007  0.0454  3.1789  0.449   1.6119]
+     [ 0.0128  0.0131  0.0022  0.0577 27.0357  1.8203  1.2248]]
 
     >>> print(codes)
-    [5 2 3]
 
+    [5 2 3]
 
 Background
 ==========
 
-The Rosetta pedotransfer function predicts five parameters for the van
+The Rosetta pedotransfer functions predict seven parameters for the van
 Genuchten model of unsaturated soil hydraulic properties
 
 * theta_r      : residual volumetric water content
 * theta_s      : saturated volumetric water content
-* log10(alpha) : retention shape parameter [log10(1/cm)]
-* log10(n)     : retention shape parameter
-* log10(ksat)  : saturated hydraulic conductivity [log10(cm/d)]
+* alpha        : retention shape parameter (1/cm)
+* n            : retention shape parameter
+* ksat         : saturated hydraulic conductivity (cm/d)
+* k0           : unsaturated conductivity matching point (cm/d)
+* L            : unsaturated conductivity exponent
 
-Rosetta provides four models for predicting the five parameters from soil
+Rosetta provides four models for predicting the seven parameters from soil
 characterization data. The models differ in the required input data
 
 +------------+------------------------+
@@ -117,10 +85,11 @@ where
 * th33 is the soil volumetric water content at 33 kPa
 * th1500 is the soil volumetric water content at 1500 kPa
 
-Three versions of Rosetta are available. The versions effectively represent
-three alternative calibrations of the four Rosetta models. 
-The references that should be cited when using Rosetta versions 1, 2,
-and 3 are, respectively:
+Three versions of Rosetta are available for predicting theta_r, theta_s
+alpha, n, and ksat. The versions effectively represent three alternative
+calibrations or trainings of the four Rosetta models. The references
+that should be cited when using Rosetta versions 1, 2, and 3 are,
+respectively:
 
 [1] Schaap, M.G., Leij, F.J., and Van Genuchten, M.T. 2001. ROSETTA: a
 computer program for estimating soil hydraulic parameters with
@@ -137,50 +106,86 @@ pedotransfer model with improved estimates of hydraulic parameter
 distributions and summary statistics (Rosetta3). Journal of Hydrology 547: 39-53.
 doi: `10.1016/j.jhydrol.2017.01.004 <https://doi.org/10.1016/j.jhydrol.2017.01.004>`_
 
+The parameters k0 and L are predicted with a neural network model from
+[1] that uses as inputs values for the retention parameters theta_r,
+theta_s, alpha, and n. In the current implementation, the same model is
+to predict k0 and L regardless of the version of Rosetta used to estimate
+the retention paramters.
+
 
 Usage
 =====
+
+Soil data should be orgainzed as a collection of data records,
+
 ::
 
-    from rosetta import rosetta, SoilData
+    >>> data = [
+    ...     [30, 30, 40, 1.5, 0.3, 0.1],  
+    ...     [20, 60, 20],
+    ...     [55, 25, 20, 1.1]
+    ... ]
 
-The imported function ``rosetta`` predicts soil hydraulic parameters from
-soil characterization data. It has two required arguments::
+where each element contains soil data in this order::
 
-    rosetta_version : int, {1, 2, 3}
-    soildata : SoilData
+    [%sand, %silt, %clay, bulk density, th33, th1500]
 
-The second argument is a ``SoilData`` instance. Normally, the instance is
-created from an array-like collection of soil characterization data
-using the ``from_array`` method.
+Sand, silt, and clay are required in each element; the others are optional.
+
+Two functions, ``rosetta`` and ``rosesoil``, are provided for predicting soil
+hydraulic parameters. The two functions have the same arguments and return
+the same results, but differ in the format of the returned results.
+The function ``rosetta`` returns the predicted parameters in numpy arrays,
+whereas ``rosesoil`` returns ``RosettaResults`` object.
+
+``rosetta`` and ``rosesoil`` take as arguments the Rosetta version to be used (1,
+2, or 3) and the array-like soil data. A third optional argument,
+``estimate_type``, specifies the parameter estimate to be returned for
+alpha, npar, Ksat, and K0:
 ::
 
-    data = [
-        [30,30,40,1.5,0.3,0.1],  
-        [20,60,20],
-        [55,25,20,1.1]
-    ]
-    soildata = SoilData.from_array(data)
+    estimate_type: Literal['linear', 'log', 'geo']
+       'linear' (default):
+           Estimate is arithmetic mean.
+       'log':
+           Estimate is mean of log10 transformed parameter value.
+       'geo':
+           Estimate is geometric mean.
 
-Each element of the array-like data contains soil data in this order::
-
-    [%sand, %silt, %clay, buld density, th33, th1500]
-
-Sand, silt, and clay are required; the others are optional. For each
-entry, ``rosetta`` selects the best availabe Rosetta model based on
-the given data.  Note that even if you are predicting for only a single
-soil record, ``data`` still needs to 2D array-like::
-
-    data = [[30,30,40]]
-    soildata = SoilData.from_array(data)
-
-The function ``rosetta`` returns a 3-tuple
+The function ``rosetta`` returns a 3-tuple of numpy arrays
 ::
 
-   mean, stdev, codes = rosetta(3, soildata)
+    >>> from rosetta import rosetta
 
-``mean`` is a 2D numpy array. The ith row holds predicted soil hydraulic
-parameters for ith entry in ``soildata``. The array columns are
+    >>> data = [
+    ...     [30,30,40,1.5,0.3,0.1],
+    ...     [20,60,20],
+    ...     [55,25,20,1.1]
+    ... ]
+
+    >>> mean, stdev, codes = rosetta(3, data)
+
+    >>> with np.printoptions(precision=4, suppress=True):
+    ...     print(mean)
+
+    [[ 0.0687  0.3839  0.0037  1.5123 10.4522  1.0203  0.2242]
+     [ 0.0899  0.4301  0.0038  1.4993 15.8995  0.8909  0.1726]
+     [ 0.0913  0.485   0.0097  1.4172 84.7834  2.9015 -0.3463]]
+
+    >>> with np.printoptions(precision=4, suppress=True):
+    ...  print(stdev)
+
+    [[ 0.0136  0.015   0.0012  0.1176  4.816   0.4968  1.4017]
+     [ 0.0067  0.0088  0.0007  0.0454  3.1789  0.449   1.6119]
+     [ 0.0128  0.0131  0.0022  0.0577 27.0357  1.8203  1.2248]]
+
+    >>> print(codes)
+
+    [5 2 3]
+
+In the above, ``mean`` is a 2D array with shape (nsamples, 7). The ith
+row holds predicted soil hydraulic parameters for ith entry in ``data``.
+The columns are:
 
 +-------+---------------------------------------------------------------+
 |Column | Parameter                                                     |
@@ -189,19 +194,23 @@ parameters for ith entry in ``soildata``. The array columns are
 +-------+---------------------------------------------------------------+
 |   1   | theta_s, saturated water content                              |
 +-------+---------------------------------------------------------------+
-|   2   | log10(alpha), 'alpha' shape parameter, log10(1/cm)            | 
+|   2   | alpha or log10(alpha), 'alpha' shape parameter, 1/cm          | 
 +-------+---------------------------------------------------------------+
-|   3   | log10(npar), 'n' shape parameter                              |
+|   3   | npar or log10(npar), 'n' shape parameter                      |
 +-------+---------------------------------------------------------------+
-|   4   | log10(Ksat), saturated hydraulic conductivity, log10(cm/day)  |
+|   4   | Ksat or log10(Ksat), saturated conductivity, cm/day           |
++-------+---------------------------------------------------------------+
+|   5   | K0 or log10(K0), conductivity matching point, cm/day          |
++-------+---------------------------------------------------------------+
+|   6   | lpar, unsaturated conductivity exponent,  cm/day              |
 +-------+---------------------------------------------------------------+
 
-``stdev`` is 2D numpy array holding the corresponding parameter standard
-deviations.
+``stdev`` is 2D array holding the corresponding parameter standard
+deviations. Note these are standard deviations for the bootstrap resamples,
+not the standard error of the mean estimate.
 
-``codes`` is a 1D numpy array with the ith entry indicating the
-Rosetta model and input data used to predict the ith row of ``mean``
-and ``stdev``.
+``codes`` is a 1D array with the ith entry indicating the Rosetta model
+and input data used to predict the ith row of ``mean`` and ``stdev``.
 
 +------+--------------------------------------------------------+
 | Code | Data used                                              |
@@ -217,49 +226,154 @@ and ``stdev``.
 |   -1 | no result returned, inadequate or erroneous data       |
 +------+--------------------------------------------------------+
 
+
+The function ``rosesoil`` works the same way:
+::
+
+    >>> from rosetta import rosesoil
+
+
+    >>> data = [
+    ...     [30,30,40,1.5,0.3,0.1],
+    ...     [20,60,20],
+    ...     [55,25,20,1.1]
+    ... ]
+
+    >>> result = rosesoil(3, data)
+
+    >>> print(result)
+
+    RosettaResults([RosettaResult(sand=30.0000, silt=30.0000, clay=40.0000,
+    rhob=1.5000, th33=0.3000, th1500=0.1000, version=3, estimate_type='linear',
+    code=5, thr=0.0687, ths=0.3839, alpha=0.0037, npar=1.5123, ksat=10.4522,
+    k0=1.0203, lpar=0.2242, thr_std=0.0136, ths_std=0.0150, alpha_std=0.0012,
+    npar_std=0.1176, ksat_std=4.8160, k0_std=0.4968, lpar_std=1.4017),
+    RosettaResult(sand=20.0000, silt=60.0000, clay=20.0000, rhob=None,
+    th33=None, th1500=None, version=3, estimate_type='linear', code=2,
+    thr=0.0899, ths=0.4301, alpha=0.0038, npar=1.4993, ksat=15.8995, k0=0.8909,
+    lpar=0.1726, thr_std=0.0067, ths_std=0.0088, alpha_std=0.0007,
+    npar_std=0.0454, ksat_std=3.1789, k0_std=0.4490, lpar_std=1.6119),
+    RosettaResult(sand=55.0000, silt=25.0000, clay=20.0000, rhob=1.1000,
+    th33=None, th1500=None, version=3, estimate_type='linear', code=3,
+    thr=0.0913, ths=0.4850, alpha=0.0097, npar=1.4172, ksat=84.7834, k0=2.9015,
+    lpar=-0.3463, thr_std=0.0128, ths_std=0.0131, alpha_std=0.0022,
+    npar_std=0.0577, ksat_std=27.0357, k0_std=1.8203, lpar_std=1.2248)])
+
+
+    To get the results as a list of dictionaries, use `.asdicts()`
+
+    >>> print(result.asdicts())
+    
+    [{'sand': 30.0, 'silt': 30.0, 'clay': 40.0, 'rhob': 1.5, 'th33': 0.3,
+    'th1500': 0.1, 'version': 3, 'estimate_type': 'linear', 'code': 5, 'thr':
+    0.06872133198419333, 'ths': 0.3839050853475144, 'alpha':
+    0.0036914540698334396, 'npar': 1.5122960137476906, 'ksat':
+    10.45220672557941, 'k0': 1.020283781688175, 'lpar': 0.22415802649553881,
+    'thr_std': 0.013635805076704855, 'ths_std': 0.014976665455951114,
+    'alpha_std': 0.0012009965476429596, 'npar_std': 0.11756697611413282,
+    'ksat_std': 4.816027639984864, 'k0_std': 0.4967836368490979, 'lpar_std':
+    1.4016987918707104}, {'sand': 20.0, 'silt': 60.0, 'clay': 20.0, 'rhob':
+    None, 'th33': None, 'th1500': None, 'version': 3, 'estimate_type':
+    'linear', 'code': 2, 'thr': 0.08994502219206939, 'ths': 0.4301366480210401,
+    'alpha': 0.0038032951212636345, 'npar': 1.4992978643076722, 'ksat':
+    15.899549552218094, 'k0': 0.8908630387641998, 'lpar': 0.17264425930013833,
+    'thr_std': 0.006710949117601514, 'ths_std': 0.008790220586404331,
+    'alpha_std': 0.0006666891009750212, 'npar_std': 0.04539463666512193,
+    'ksat_std': 3.178862086739814, 'k0_std': 0.4489771681065423, 'lpar_std':
+    1.6118830509323745}, {'sand': 55.0, 'silt': 25.0, 'clay': 20.0, 'rhob':
+    1.1, 'th33': None, 'th1500': None, 'version': 3, 'estimate_type': 'linear',
+    'code': 3, 'thr': 0.09130753033144609, 'ths': 0.485031958049669, 'alpha':
+    0.009748718589139088, 'npar': 1.4171964842691995, 'ksat': 84.7833726853498,
+    'k0': 2.9015059553301388, 'lpar': -0.3463378623447919, 'thr_std':
+    0.012777797583517441, 'ths_std': 0.013068706563916467, 'alpha_std':
+    0.0022148332082555515, 'npar_std': 0.05767077407189314, 'ksat_std':
+    27.035739850886362, 'k0_std': 1.8202787951521058, 'lpar_std':
+    1.2248193041204392}]
+
+
 Alternative usage
 -----------------
 
-Predictions can also be made using the Rosetta class
+Predictions can also be made using the Rosetta and UnsaturatedK classes.
+These classes return the raw bootstrap ensembles of the predicted parameters,
+which may be of interest to researchers who want to compute alternative
+summary statistics or who want to use the resamples for other purposes.
+
 ::
 
-    import numpy as np
-    from rosetta import Rosetta
+    >>> from rosetta import Rosetta
 
-The class is instantiated for a particular Rosetta version and model.
-Predictions are then made using a numpy array of soil data.
+The Rosetta class is instantiated for a particular Rosetta version and model,
+
 ::
 
-    rose33 = Rosetta(rosetta_version=3, model_code=3)
-    data = np.array([[30,30,40,1.5],[55,25,20,1.1]], dtype=float)
-    mean, stdev = rose33.predict(data)
+    >>> rose33 = Rosetta(rosetta_version=3, model_code=3)
 
-The 2D numpy array ``data`` has to be ``data.shape[1] = model_code + 1``.
-Compared with the function rosetta.rosetta, Rosetta.predict offers
-fewer checks on arguments and data.
+The ``.predict()`` method returns a 2-tuple of numpy arrays. The first 
+has shape (nboot, nsample, nouput=4), where the 4 outputs are: [theta_r,
+theta_s, log10(alpha), log10(npar)]. The second array has shape
+(nboot, nsample, nouput=1), where the 1 ouput is [log10(Ksat)].
 
+Note that whereas ``rosetta()`` and ``rosesoil()`` allow data elements
+of differing lengths, ``.predict()`` requires that data be compatible
+with a full 2D array that has the correct number of columns for the
+instantiated model (ncols = data.shape[1] = model_code + 1).
 
-Notes
-=====
-
-This module wraps files taken from
-`research code <http://www.u.arizona.edu/~ygzhang/download.html>`_
-developed by Marcel Schaap and Yonggen Zhang at the University of
-Arizona. 
-
-The Rosetta class described above has another method,
-Rosetta.ann_predict, which returns additional statistical quantities
-computed by the Schaap and Zhang code and which may be of interest to
-researchers. The usage is the same as Rosetta.predict,
 ::
 
-    rose33 = Rosetta(rosetta_version=3, model_code=3)
-    data = np.array([[30,30,40,1.5],[55,25,20,1.1]], dtype=float)
-    results = rose33.ann_predict(data, sum_data=True)
+    >>> from rosetta import Rosetta
+    >>> rose33 = Rosetta(rosetta_version=3, model_code=3)
+    >>> data =[
+    ...     # sa, si, cl, bd
+    ...     [30, 30, 40, 1.5],
+    ...     [55, 25, 20, 1.1]
+    ... ]
+    >>> retc_boot, ksat_boot = rose33.predict(data)
+    >>> print(retc_boot.shape)
+    (1000, 2, 4)
+    >>> print(ksat_boot.shape)
+    (1000, 2, 1)
 
-However, in this case, the returned ``results`` is a dictionay of parameters
-and statistical results. Note the arrays in ``results`` are the transpose 
-of what is returned by other functions and methods in ``rosetta-soil``
-See the file ``ANN_Module.py`` and the code base of 
-`Schaap and Zhang <http://www.u.arizona.edu/~ygzhang/download.html>`_
-for more information.
+Statistics for the bootstrap resamples are computed along the zero axis,
+e.g.
+
+::
+
+    >>> import numpy as np
+    >>> print(np.mean(retc_boot, axis=0))
+
+    [[ 0.11535773  0.41791199 -2.06713851  0.11201021]
+    [ 0.09130753  0.48503196 -2.02238809  0.15107161]]
+
+The UnsaturatedK class is used to predict K0 and L from the retention
+parameters theta_r, theta_s, alpha, and npar. The input retention
+parameters must be linear values, not log10 transformed. The
+``.predict()`` method returns a 3D array with shape
+(nboot, nsamples, nouput=2), where the two outputs are [log10(K0), Lpar].
+
+::
+
+    >>> from rosetta import UnsaturatedK
+    >>> unsatk = UnsaturatedK()
+    >>> retc_params = [
+    ...     # theta_r, theta_s, alpha, npar
+    ...     [0.12, 0.42, 0.008, 1.29],
+    ...     [0.09, 0.49, 0.009, 1.41]
+    ... ]
+    >>> unsat_boot = unsatk.predict(retc_params)
+    >>> print(unsat_boot.shape)
+    (100, 2, 2)
+    >>> print(np.mean(unsat_boot, axis=0))
+    [[-0.04057941, -1.03302704],
+    [ 0.35788353, -0.25048901]]
+
+
+Acknowledgments
+===============
+
+The values for the neural network weights and biases were obtained from
+`Marcel Schaap`_ and `Yonggen Zhang`_ at the University of Arizona.
+
+.. _Marcel Schaap: https://envs.arizona.edu/person/marcel-g-schaap
+.. _Yonggen Zhang: https://scholar.google.com/citations?user=u46LEeQAAAAJ&hl=en
+
