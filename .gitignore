@@ -1,3 +1,5 @@
+/src/rosetta/_version.py
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -23,28 +25,3 @@ var/
 .installed.cfg
 *.egg
 
-/src/rosetta/_version.py
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*,cover
-.hypothesis/
-.pytest_cache/
-
-# Sphinx documentation
-docs/_build/
-docs/source/_tutorial/data/
-docs/source/_tutorial/results/
-docs/source/_background/
-
-# dotenv
-.env
-.vscode
-tags
-.ipynb_checkpoints
