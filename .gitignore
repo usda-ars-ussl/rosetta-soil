@@ -6,6 +6,8 @@ __pycache__/
 # Distribution / packaging
 .Python
 env/
+.venv/
+venv/
 build/
 develop-eggs/
 dist/
@@ -20,6 +22,8 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
+
+/src/rosetta/_version.py
 
 # Unit test / coverage reports
 htmlcov/
