@@ -1,3 +1,8 @@
+# v0.3.2 (2026-03-02)
+- changed named option for `estimate_type`. The default option "linear"
+  is now "arith".
+- networks are no longer validated by default
+
 # v0.3.1 (2026-03-02)
 - vectorize nn_model.py (thanks to @brownag for the contribution)
 
