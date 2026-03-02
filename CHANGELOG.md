@@ -1,3 +1,6 @@
+# v0.3.1 (2026-03-02)
+- vectorize nn_model.py (thanks to @brownag for the contribution)
+
 # v0.3 (2026-02-27)
 - Major re-write with breaking changes.
 - Add UsaturatedK class for predictions of K0 and L.
