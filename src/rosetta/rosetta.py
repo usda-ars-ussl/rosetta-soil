@@ -193,8 +193,10 @@ class UnsaturatedK:
     full ensemble of bootstrap resamples.
     """
 
-    def __init__(self):
-        self.model = NNModel.from_npz_resource("rose1_unsat_k")
+    def __init__(self, validate_network: bool = False) -> None:
+        self.model = NNModel.from_npz_resource(
+            "rose1_unsat_k", validate_network=validate_network
+        )
         self.model.validate_input = self._validate_input
 
     @staticmethod
@@ -228,21 +230,27 @@ class Rosetta:
     full ensemble of bootstrap resamples.
     """
 
-    def __init__(self, rosetta_version: int, model_code: int) -> None:
+    def __init__(
+        self, rosetta_version: int, model_code: int, validate_network: bool = False
+    ) -> None:
         _validate_rosetta_input(rosetta_version, model_code)
 
         if rosetta_version == 3:
             nn_name = f"rose3_mod{model_code}"
         else:
             nn_name = f"rose1_mod{model_code}"
-        model0 = NNModel.from_npz_resource(nn_name + "_0")
+        model0 = NNModel.from_npz_resource(
+            nn_name + "_0", validate_network=validate_network
+        )
 
         # Rosetta 1 and 2 have separate models for VG params and Ksat.
         # Rosetta 3 has one model for both.
         if rosetta_version == 3:
             model1 = None
         else:
-            model1 = NNModel.from_npz_resource(nn_name + "_1")
+            model1 = NNModel.from_npz_resource(
+                nn_name + "_1", validate_network=validate_network
+            )
 
         self.rosetta_version = rosetta_version
         self.model_code = model_code
@@ -294,7 +302,7 @@ class Rosetta:
 def rosetta(
     rosetta_version: int,
     soildata: SoilData | Iterable[Iterable[Number]] | Iterable[Number],
-    estimate_type: Literal["linear", "log", "geo"] = "linear",
+    estimate_type: Literal["arirh", "log", "geo"] = "arith",
 ) -> tuple[Array2D, Array2D, Array1D]:
     """Predict soil hydraulic parameters from soil characterization data.
 
@@ -307,15 +315,17 @@ def rosetta(
     soildata : SoilData | Iterable[Iterable] | Iterable
         List of soil characterization data, one entry per soil
 
-    estimate_type: Literal["linear", "log", "geo"]
-       Specifies the parameter estimate to be returned from the bootsrap
-       ensemble of parameter values for alpha, npar, Ksat, and K0.
-       'linear' (default):
-           Estimate is aritmetic mean.
-       'log':
-           Estimate is mean of log10 transformed parameter value.
-       'geo':
-           Estimate is geometric mean.
+    estimate_type: Literal["arith", "log", "geo"]
+        Specifies the parameter estimate to be returned from the bootsrap
+        ensemble of parameter values for alpha, npar, Ksat, and K0.
+        'arith' (default):
+            Estimate is aritmetic mean.
+        'log':
+            Estimate is mean of log10 transformed parameter value.
+        'geo':
+            Estimate is geometric mean.
+        Esimates of theta_r, theta_s, and Lpar are always arithmetic
+        means regardless of `estimate_type`.
 
     Returns
     -------
@@ -450,7 +460,7 @@ def rosetta(
             mean[rowmask, 5:] = np.mean(unsatboot, axis=0)
             stdev[rowmask, 5:] = np.std(unsatboot, axis=0, ddof=1)
 
-        elif estimate_type == "linear":
+        elif estimate_type == "arith":
             mean[rowmask, :4] = retc_arith_mean
             mean[rowmask, 4:5] = ksat_arith_mean
             stdev[rowmask, :4] = retc_arith_std
@@ -491,7 +501,7 @@ class RosettaResult:
     th33: float | None
     th1500: float | None
     version: int
-    estimate_type: Literal["linear", "log", "geo"]
+    estimate_type: Literal["arith", "log", "geo"]
     code: int
     thr: float
     ths: float
@@ -553,7 +563,7 @@ class RosettaResults:
 def rosesoil(
     rosetta_version: int,
     soildata: SoilData | Iterable[Iterable[Number]] | Iterable[Number],
-    estimate_type: Literal["linear", "log", "geo"] = "linear",
+    estimate_type: Literal["arith", "log", "geo"] = "arith",
 ) -> list[dict] | RosettaResults:
     """Predict soil hydraulic parameters from soil characterization data.
 
@@ -569,15 +579,17 @@ def rosesoil(
     soildata : SoilData | Iterable[Iterable] | Iterable
         List of soil characterization data, one entry per soil
 
-    estimate_type: Literal["linear", "log", "geo"]
-       Specifies the parameter estimate to be returned from the bootsrap
-       ensemble of parameter values for alpha, npar, Ksat, and K0.
-       'linear' (default):
-           Estimate is aritmetic mean.
-       'log':
-           Estimate is mean of log10 transformed parameter value.
-       'geo':
-           Estimate is geometric mean.
+    estimate_type: Literal["arith", "log", "geo"]
+        Specifies the parameter estimate to be returned from the bootsrap
+        ensemble of parameter values for alpha, npar, Ksat, and K0.
+        'arith' (default):
+            Estimate is aritmetic mean.
+        'log':
+            Estimate is mean of log10 transformed parameter value.
+        'geo':
+            Estimate is geometric mean.
+        Esimates of theta_r, theta_s, and Lpar are always arithmetic
+        means regardless of `estimate_type`.
 
     Returns
     -------
@@ -617,17 +629,17 @@ def rosesoil(
     >>> print(result)
 
     RosettaResults([RosettaResult(sand=30.0000, silt=30.0000, clay=40.0000,
-    rhob=1.5000, th33=0.3000, th1500=0.1000, version=3, estimate_type='linear',
+    rhob=1.5000, th33=0.3000, th1500=0.1000, version=3, estimate_type='arith',
     code=5, thr=0.0687, ths=0.3839, alpha=0.0037, npar=1.5123, ksat=10.4522,
     k0=1.0203, lpar=0.2242, thr_std=0.0136, ths_std=0.0150, alpha_std=0.0012,
     npar_std=0.1176, ksat_std=4.8160, k0_std=0.4968, lpar_std=1.4017),
     RosettaResult(sand=20.0000, silt=60.0000, clay=20.0000, rhob=None,
-    th33=None, th1500=None, version=3, estimate_type='linear', code=2,
+    th33=None, th1500=None, version=3, estimate_type='arith', code=2,
     thr=0.0899, ths=0.4301, alpha=0.0038, npar=1.4993, ksat=15.8995, k0=0.8909,
     lpar=0.1726, thr_std=0.0067, ths_std=0.0088, alpha_std=0.0007,
     npar_std=0.0454, ksat_std=3.1789, k0_std=0.4490, lpar_std=1.6119),
     RosettaResult(sand=55.0000, silt=25.0000, clay=20.0000, rhob=1.1000,
-    th33=None, th1500=None, version=3, estimate_type='linear', code=3,
+    th33=None, th1500=None, version=3, estimate_type='arith', code=3,
     thr=0.0913, ths=0.4850, alpha=0.0097, npar=1.4172, ksat=84.7834, k0=2.9015,
     lpar=-0.3463, thr_std=0.0128, ths_std=0.0131, alpha_std=0.0022,
     npar_std=0.0577, ksat_std=27.0357, k0_std=1.8203, lpar_std=1.2248)])
@@ -638,7 +650,7 @@ def rosesoil(
     >>> print(result.asdicts())
 
     [{'sand': 30.0, 'silt': 30.0, 'clay': 40.0, 'rhob': 1.5, 'th33': 0.3,
-    'th1500': 0.1, 'version': 3, 'estimate_type': 'linear', 'code': 5, 'thr':
+    'th1500': 0.1, 'version': 3, 'estimate_type': 'arith', 'code': 5, 'thr':
     0.06872133198419333, 'ths': 0.3839050853475144, 'alpha':
     0.0036914540698334396, 'npar': 1.5122960137476906, 'ksat':
     10.45220672557941, 'k0': 1.020283781688175, 'lpar': 0.22415802649553881,
@@ -647,14 +659,14 @@ def rosesoil(
     'ksat_std': 4.816027639984864, 'k0_std': 0.4967836368490979, 'lpar_std':
     1.4016987918707104}, {'sand': 20.0, 'silt': 60.0, 'clay': 20.0, 'rhob':
     None, 'th33': None, 'th1500': None, 'version': 3, 'estimate_type':
-    'linear', 'code': 2, 'thr': 0.08994502219206939, 'ths': 0.4301366480210401,
+    'arith', 'code': 2, 'thr': 0.08994502219206939, 'ths': 0.4301366480210401,
     'alpha': 0.0038032951212636345, 'npar': 1.4992978643076722, 'ksat':
     15.899549552218094, 'k0': 0.8908630387641998, 'lpar': 0.17264425930013833,
     'thr_std': 0.006710949117601514, 'ths_std': 0.008790220586404331,
     'alpha_std': 0.0006666891009750212, 'npar_std': 0.04539463666512193,
     'ksat_std': 3.178862086739814, 'k0_std': 0.4489771681065423, 'lpar_std':
     1.6118830509323745}, {'sand': 55.0, 'silt': 25.0, 'clay': 20.0, 'rhob':
-    1.1, 'th33': None, 'th1500': None, 'version': 3, 'estimate_type': 'linear',
+    1.1, 'th33': None, 'th1500': None, 'version': 3, 'estimate_type': 'arith',
     'code': 3, 'thr': 0.09130753033144609, 'ths': 0.485031958049669, 'alpha':
     0.009748718589139088, 'npar': 1.4171964842691995, 'ksat': 84.7833726853498,
     'k0': 2.9015059553301388, 'lpar': -0.3463378623447919, 'thr_std':
