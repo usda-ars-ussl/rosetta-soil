@@ -47,6 +47,15 @@ class NNModel:
         self._output_scalers = [(self._scale_fn(c["scale"]), c["params"]) for c in self.outputs]
         self._layer_activations = [self._activate_fn(c["activate"]) for c in self.layers]
 
+        self._W_stacked = [
+            np.stack([self.weights[b][i].T for b in range(self.nboot)])
+            for i in range(self.nlayer)
+        ]
+        self._b_stacked = [
+            np.stack([np.atleast_2d(self.biases[b][i]) for b in range(self.nboot)])
+            for i in range(self.nlayer)
+        ]
+
     def _validate_network(self):
         assert len(self.inputs) == self.ninput, "inputs metadata length mismatch"
         assert len(self.outputs) == self.noutput, "outputs metadata length mismatch"
@@ -190,9 +199,9 @@ class NNModel:
             raise ValueError(f"Unknown scaler method: {name}")
 
     def _scale(self, raw_vals: np.ndarray, scalers: list[tuple[Callable, list]]) -> np.ndarray:
-        scaled = np.zeros(raw_vals.shape[0])
+        scaled = np.zeros_like(raw_vals)
         for i, (fn, params) in enumerate(scalers):
-            scaled[i] = fn(raw_vals[i], params)
+            scaled[..., i] = fn(raw_vals[..., i], params)
         return scaled
 
     def _forward_single(self, scaled_input: np.ndarray, boot_idx: int) -> np.ndarray:
@@ -206,11 +215,19 @@ class NNModel:
             a = activation(z)
         return a
 
+    def _forward_vectorized(self, scaled_inputs: np.ndarray) -> np.ndarray:
+        """Forward pass through the layers of multiple networks"""
+        a = scaled_inputs[np.newaxis, :, :]
+        for i in range(self.nlayer):
+            z = np.matmul(a, self._W_stacked[i]) + self._b_stacked[i]
+            a = self._layer_activations[i](z)
+        return a
+
     def predict(self, inputs: ArrayLike) -> np.ndarray:
         """
         Parameters
         ----------
-        input: shape (nsamples, ninput)
+        inputs: shape (nsamples, ninput)
 
         Returns
         -------
@@ -227,15 +244,19 @@ class NNModel:
                 f"or alternatively ({self.ninput},) if nsample = 1.)"
             )
 
+        # return NaN for invalid samples
+        invalid_mask = np.zeros(inputs.shape[0], dtype=bool)
+        if self.validate_input:
+            invalid_mask = np.array([not self.validate_input(inp) for inp in inputs])
+
         outputs = np.full((self.nboot, inputs.shape[0], self.noutput), np.nan)
-        for sample_idx, input in enumerate(inputs):
-            if self.validate_input:
-                if not self.validate_input(input):
-                    # could/should do more/better here, but for now just return NaNs
-                    continue
-            scaled_input = self._scale(input, self._input_scalers)
-            for boot_idx in range(self.nboot):
-                raw_output = self._forward_single(scaled_input, boot_idx)
-                outputs[boot_idx, sample_idx, :] = self._scale(raw_output, self._output_scalers)
+        valid_mask = ~invalid_mask
+
+        if np.any(valid_mask):
+            valid_inputs = inputs[valid_mask]
+            scaled_inputs = self._scale(valid_inputs, self._input_scalers)
+            raw_outputs = self._forward_vectorized(scaled_inputs)
+            outputs[:, valid_mask, :] = self._scale(raw_outputs, self._output_scalers)
+
         return outputs
 
