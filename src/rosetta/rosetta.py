@@ -302,7 +302,7 @@ class Rosetta:
 def rosetta(
     rosetta_version: int,
     soildata: SoilData | Iterable[Iterable[Number]] | Iterable[Number],
-    estimate_type: Literal["arirh", "log", "geo"] = "arith",
+    estimate_type: Literal["arith", "log", "geo"] = "arith",
 ) -> tuple[Array2D, Array2D, Array1D]:
     """Predict soil hydraulic parameters from soil characterization data.
 
