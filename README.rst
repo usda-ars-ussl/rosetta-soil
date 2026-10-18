@@ -202,7 +202,7 @@ The columns are:
 +-------+---------------------------------------------------------------+
 |   5   | K0 or log10(K0), conductivity matching point, cm/day          |
 +-------+---------------------------------------------------------------+
-|   6   | lpar, unsaturated conductivity exponent,  cm/day              |
+|   6   | lpar, unsaturated conductivity exponent                       |
 +-------+---------------------------------------------------------------+
 
 ``stdev`` is 2D array holding the corresponding parameter standard
